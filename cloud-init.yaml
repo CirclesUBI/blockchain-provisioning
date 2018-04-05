@@ -20,6 +20,11 @@ apt:
       source: "deb [arch=amd64] https://download.docker.com/linux/ubuntu $RELEASE stable"
       keyid: 0EBFCD88
 
+runcmd:
+  # Install docker-compose
+  - sudo curl -L https://github.com/docker/compose/releases/download/${docker_compose_version}/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+  - sudo chmod +x /usr/local/bin/docker-compose
+
 power_state:
   delay: "now"
   mode: reboot
