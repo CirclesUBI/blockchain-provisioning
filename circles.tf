@@ -7,6 +7,7 @@ data "template_file" "cloud_init" {
 
     vars {
         puppeth_public_key = "${aws_key_pair.puppeth.public_key}"
+        docker_compose_version = "1.20.1"
     }
 }
 
