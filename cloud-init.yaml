@@ -1,0 +1,27 @@
+#cloud-config
+
+# Update package lists on first boot
+package_update: true
+
+packages: ['docker-ce']
+
+groups:
+  - docker
+
+users:
+  - name: puppeth
+    groups: docker
+    ssh_authorized_keys:
+      - ${puppeth_public_key}
+
+apt:
+  sources:
+    docker:
+      source: "deb [arch=amd64] https://download.docker.com/linux/ubuntu $RELEASE stable"
+      keyid: 0EBFCD88
+
+power_state:
+  delay: "now"
+  mode: reboot
+  message: First reboot
+  condition: True
