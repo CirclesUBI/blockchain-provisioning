@@ -11,7 +11,7 @@ This repository contains terraform scripts defining an AWS environment containin
 
 ## Running a Local Copy of the Infrastructure
 
-1. Install [docker]() and [docker-compose]()
+1. Install [docker](https://docs.docker.com/install/) and [docker-compose](https://docs.docker.com/compose/install/)
 1. `docker-compose up`
 
 ## Design Overview
@@ -35,3 +35,10 @@ This repository contains terraform scripts defining an AWS environment containin
 
 - Ubuntu 16.04 LTS
 - Provisioned with cloud-config at boot-time
+
+## TODO
+
+- logging
+- alerting
+- secret management
+  - ws_secret for ethstats
