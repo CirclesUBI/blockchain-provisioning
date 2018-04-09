@@ -5,3 +5,5 @@ services:
     ports:
       - "3000:3000"
     restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
