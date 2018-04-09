@@ -1,18 +1,13 @@
 #cloud-config
 
-# Update package lists on first boot
+# upgrade all installed packages to latest
 package_update: true
-
-packages: ['docker-ce']
+package_upgrade: true
 
 groups:
   - docker
 
-users:
-  - name: puppeth
-    groups: docker
-    ssh_authorized_keys:
-      - ${puppeth_public_key}
+packages: ['docker-ce']
 
 apt:
   sources:
@@ -20,13 +15,23 @@ apt:
       source: "deb [arch=amd64] https://download.docker.com/linux/ubuntu $RELEASE stable"
       keyid: 0EBFCD88
 
+write_files:
+  - path: /home/ubuntu/docker-compose.yaml
+    owner: ubuntu:ubuntu
+    permissions: '0644'
+    encoding: base64
+    content: ${base64encode(docker_compose_file)}
+
 runcmd:
-  # Install docker-compose
+  # allow non root users to run docker
+  - sudo usermod -a -G docker ubuntu
+
+  # keep docker deamon running
+  - sudo systemctl enable docker
+
+  # install docker-compose
   - sudo curl -L https://github.com/docker/compose/releases/download/${docker_compose_version}/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
   - sudo chmod +x /usr/local/bin/docker-compose
 
-power_state:
-  delay: "now"
-  mode: reboot
-  message: First reboot
-  condition: True
+  # start services
+  - docker-compose -f /home/ubuntu/docker-compose.yaml up
