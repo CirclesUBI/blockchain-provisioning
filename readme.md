@@ -1,9 +1,6 @@
 # Blockchain Provisioning
 
-This repository contains:
-
-1. Terraform scripts defining a set of AWS resources
-1. Notes and documentation on how to use [puppeth](https://www.youtube.com/watch?v=T5RcjYPTG9g) to provision a private PoA ethereum blockchain on top of those resources
+This repository contains terraform scripts defining an AWS environment containing a private Ethereum blockchain
 
 ## Bringing Up the AWS environment
 
@@ -12,7 +9,29 @@ This repository contains:
 1. `terraform init`
 1. `terraform apply`
 
-## Logging into the AWS environment
+## Running a Local Copy of the Infrastructure
 
-1. You must have the private key for the `puppeth` aws keypair
-1. `ssh -i <PRIVATE_KEY_PATH.pem> puppeth@<INSTANCE_PUBLIC_DNS>`
+1. Install [docker]() and [docker-compose]()
+1. `docker-compose up`
+
+## Design Overview
+
+- Single burstable EC2 instance. All services run in docker and coordinated with docker-compose.
+- Data persisted and backed up using an EBS volume & snapshots.
+- API gateway for routing.
+- Geth chain using Cliqe PoA consensus.
+- All changes to the infra go through git.
+- No ssh access.
+- Immutable (all changes trigger a full rebuild + atomic swap)
+
+### Services
+
+- bootnode (geth)
+- miner (geth)
+- monitoring dashboard (ethstats)
+- block explorer (etherscan-light)
+
+### Base VM Config
+
+- Ubuntu 16.04 LTS
+- Provisioned with cloud-config at boot-time
