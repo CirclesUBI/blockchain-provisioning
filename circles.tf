@@ -14,7 +14,7 @@ resource "aws_vpc" "circles" {
     enable_dns_hostnames = true
 
     tags {
-        Name = "circles"
+        Name = "circles-vpc"
     }
 }
 
@@ -25,7 +25,7 @@ resource "aws_subnet" "circles" {
     availability_zone = "eu-central-1b"
 
     tags {
-        Name = "subnet az 1a"
+        Name = "circles-subnet"
     }
 }
 
@@ -33,7 +33,7 @@ resource "aws_internet_gateway" "circles" {
     vpc_id = "${aws_vpc.circles.id}"
 
     tags {
-        Name = "internet gateway"
+        Name = "circles-internet-gateway"
     }
 }
 
@@ -47,24 +47,49 @@ resource "aws_route" "internet_access" {
 // LOAD BALANCER & SCALING GROUP
 //
 // Runs health checks and ensures that at least one node is always up + healthy
-// Allows for rolling zero downtime deployments
+//
+// Allows for blue - green deployments:
+//
+//  (1) New "circles" LC is created with the fresh AMI
+//  (2) New "circles" ASG is created with the fresh LC
+//  (3) Terraform waits for the new ASG's instances to spin up and attach to the "circles" ELB
+//  (4) Once all new instances are InService, Terraform begins destroy of old ASG
+//  (5) Once old ASG is destroyed, Terraform destroys old LC
+//
+// see: https://groups.google.com/forum/#!msg/terraform-tool/7Gdhv1OAc80/iNQ93riiLwAJ
 // -----------------------------------------------------------------------------
 
-resource "aws_elb" "elb_app" {
-    name = "app-elb"
+variable "ethstats_port" {
+    default = 3000
+}
+
+variable "ethstats_protocol" {
+    default = "http"
+}
+
+variable "node_count" {
+    default = 1
+}
+
+// -----------------------------------------------------------------------------
+
+resource "aws_elb" "circles" {
+    name = "circles"
+
+    // ethstats
 
     listener {
-        instance_port = 3000
-        instance_protocol = "http"
-        lb_port = 3000
-        lb_protocol = "http"
+        instance_port = "${var.ethstats_port}"
+        instance_protocol = "${var.ethstats_protocol}"
+        lb_port = "${var.ethstats_port}"
+        lb_protocol = "${var.ethstats_protocol}"
     }
 
     health_check {
         healthy_threshold = 3
         unhealthy_threshold = 2
         timeout = 10
-        target = "HTTP:3000/"
+        target = "HTTP:${var.ethstats_port}/"
         interval = 30
     }
 
@@ -72,35 +97,39 @@ resource "aws_elb" "elb_app" {
     subnets         = ["${aws_subnet.circles.id}"]
     security_groups = ["${aws_security_group.allow_all.id}"]
 
+    lifecycle {
+        create_before_destroy = true
+    }
+
     tags {
-        Name = "app-elb"
+        Name = "circles-elastic-load-balancer"
     }
 }
 
 resource "aws_autoscaling_group" "circles" {
-    name = "circles"
 
-    max_size = 2
-    min_size = 1
+    name = "circles - ${aws_launch_configuration.circles.name}"
+    launch_configuration = "${aws_launch_configuration.circles.id}"
 
-    desired_capacity = 1
-    wait_for_elb_capacity = 1
+    max_size = "${var.node_count}"
+    min_size = "${var.node_count}"
+
+    desired_capacity = "${var.node_count}"
+    wait_for_elb_capacity = "${var.node_count}"
 
     health_check_grace_period = 300
     health_check_type = "ELB"
 
-    launch_configuration = "${aws_launch_configuration.circles.id}"
-
-    load_balancers = ["${aws_elb.elb_app.id}"]
+    load_balancers = ["${aws_elb.circles.id}"]
     vpc_zone_identifier = ["${aws_subnet.circles.id}"]
 
     lifecycle {
         create_before_destroy = true
     }
 
-    tag {
+    tags {
         key = "Name"
-        value = "circles-${count.index}"
+        value = "circles-autoscaling-group-${count.index}"
         propagate_at_launch = true
     }
 }
@@ -108,8 +137,26 @@ resource "aws_autoscaling_group" "circles" {
 // -----------------------------------------------------------------------------
 // NODE
 //
-// Defines a single burstable instance with docker & docker-compose installed.
-// Runs docker-compose up after boot
+// Brings up a single node running all services.
+//
+// -----------------------------------------------------------------------------
+
+variable "ubuntu_version" {
+    default = "16.04"
+}
+
+variable "ubuntu_release_name" {
+    default = "xenial"
+}
+
+variable "docker_version" {
+    default = "docker-ce=18.03.0.ce"
+}
+
+variable "docker_compose_version" {
+    default = "1.20.1"
+}
+
 // -----------------------------------------------------------------------------
 
 data "aws_ami" "ubuntu" {
@@ -117,7 +164,7 @@ data "aws_ami" "ubuntu" {
 
     filter {
         name   = "name"
-        values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
+        values = ["ubuntu/images/hvm-ssd/ubuntu-${var.ubuntu_release_name}-${var.ubuntu_version}-amd64-server-*"]
     }
 
     filter {
@@ -134,7 +181,8 @@ data "template_file" "cloud_init" {
 
     vars {
         docker_compose_file = "${file("${path.module}/docker-compose.yaml")}"
-        docker_compose_version = "1.20.1"
+        docker_version = "${var.docker_version}"
+        docker_compose_version = "${var.docker_compose_version}"
     }
 }
 

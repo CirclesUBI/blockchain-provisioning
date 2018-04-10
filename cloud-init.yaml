@@ -1,8 +1,11 @@
 #cloud-config
 
-# upgrade all installed packages to latest
+# -----------------------------------------------------------------------
+# 1. Installs docker + docker-compose
+# 2. Brings up all services specified in the docker-compose.yaml
+# -----------------------------------------------------------------------
+
 package_update: true
-package_upgrade: true
 
 groups:
   - docker
