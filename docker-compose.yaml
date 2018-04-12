@@ -11,4 +11,19 @@ services:
   bootnode:
     image: ethereum/client-go:alltools-stable
     restart: always
+    ports:
+      - "30301:30301"
     command: bootnode -nodekeyhex 258b9f9b54ac3d165b96897ed154bbbc1bd4d2ca054479ea7f9fe7266171d97c
+    links:
+      - ethstats
+
+  miner:
+    image: ethereum/client-go
+    restart: always
+    command: --ethstats "miner:circles-ethstats@ethstats:3000"
+    ports:
+      - "8545:8545"
+      - "30303:30303"
+    links:
+      - ethstats
+      - bootnode
