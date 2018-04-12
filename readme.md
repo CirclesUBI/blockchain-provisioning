@@ -40,5 +40,7 @@ This repository contains terraform scripts defining an AWS environment containin
 
 - logging
 - alerting
+- pin docker version
 - secret management
   - ws_secret for ethstats [SO](https://ethereum.stackexchange.com/a/36439)
+  - bootnode key
