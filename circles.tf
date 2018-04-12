@@ -96,7 +96,7 @@ resource "aws_elb" "circles" {
 
     idle_timeout = 60
     subnets         = ["${aws_subnet.circles.id}"]
-    security_groups = ["${aws_security_group.ethstats.id}"]
+    security_groups = ["${aws_security_group.circles.id}"]
 
     lifecycle {
         create_before_destroy = true
@@ -196,7 +196,7 @@ resource "aws_launch_configuration" "circles" {
     instance_type = "t2.micro"
     image_id = "${data.aws_ami.ubuntu.id}"
 
-    security_groups = ["${aws_security_group.ethstats.id}"]
+    security_groups = ["${aws_security_group.circles.id}"]
     user_data       = "${data.template_file.cloud_init.rendered}"
 }
 
@@ -204,8 +204,8 @@ resource "aws_launch_configuration" "circles" {
 // FIREWALL
 // -----------------------------------------------------------------------------
 
-resource "aws_security_group" "ethstats" {
-    name = "ethstats"
+resource "aws_security_group" "circles" {
+    name = "circles"
     vpc_id = "${aws_vpc.circles.id}"
 
     ingress {
