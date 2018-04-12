@@ -6,6 +6,7 @@ provider "aws" {
 // NETWORK
 //
 // Defines a VPC with a single publicly visible subnet
+// see: https://ops.tips/blog/a-pratical-look-at-basic-aws-networking/
 // -----------------------------------------------------------------------------
 
 resource "aws_vpc" "circles" {
@@ -95,7 +96,7 @@ resource "aws_elb" "circles" {
 
     idle_timeout = 60
     subnets         = ["${aws_subnet.circles.id}"]
-    security_groups = ["${aws_security_group.allow_all.id}"]
+    security_groups = ["${aws_security_group.ethstats.id}"]
 
     lifecycle {
         create_before_destroy = true
@@ -137,8 +138,11 @@ resource "aws_autoscaling_group" "circles" {
 // -----------------------------------------------------------------------------
 // NODE
 //
-// Brings up a single node running all services.
+// Brings up a single node running all services:
 //
+// 1. node is booted
+// 2. cloud-init is run & bootstraps to docker-compose
+// 3. docker-compose brings everything else up
 // -----------------------------------------------------------------------------
 
 variable "ubuntu_version" {
@@ -192,24 +196,22 @@ resource "aws_launch_configuration" "circles" {
     instance_type = "t2.micro"
     image_id = "${data.aws_ami.ubuntu.id}"
 
-    security_groups = ["${aws_security_group.allow_all.id}"]
+    security_groups = ["${aws_security_group.ethstats.id}"]
     user_data       = "${data.template_file.cloud_init.rendered}"
 }
 
 // -----------------------------------------------------------------------------
-// SECURITY GROUPS
-//
-// Defines a single group that allows all incoming and outgoing connections
+// FIREWALL
 // -----------------------------------------------------------------------------
 
-resource "aws_security_group" "allow_all" {
-    name = "allow_all"
+resource "aws_security_group" "ethstats" {
+    name = "ethstats"
     vpc_id = "${aws_vpc.circles.id}"
 
     ingress {
-        from_port   = 0
-        to_port     = 0
-        protocol    = "-1"
+        from_port   = "${var.ethstats_port}"
+        to_port     = "${var.ethstats_port}"
+        protocol    = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
     }
 
