@@ -47,17 +47,7 @@ resource "aws_route" "internet_access" {
 // -----------------------------------------------------------------------------
 // LOAD BALANCER & SCALING GROUP
 //
-// Runs health checks and ensures that at least one node is always up + healthy
-//
-// Allows for blue - green deployments:
-//
-//  (1) New "circles" LC is created with the fresh AMI
-//  (2) New "circles" ASG is created with the fresh LC
-//  (3) Terraform waits for the new ASG's instances to spin up and attach to the "circles" ELB
-//  (4) Once all new instances are InService, Terraform begins destroy of old ASG
-//  (5) Once old ASG is destroyed, Terraform destroys old LC
-//
-// see: https://groups.google.com/forum/#!msg/terraform-tool/7Gdhv1OAc80/iNQ93riiLwAJ
+// Runs health checks and ensures that at least one node is always up and healthy
 // -----------------------------------------------------------------------------
 
 variable "ethstats_port" {
@@ -69,7 +59,7 @@ variable "ethstats_protocol" {
 }
 
 variable "node_count" {
-    default = 1
+    default = 2
 }
 
 // -----------------------------------------------------------------------------
@@ -107,38 +97,47 @@ resource "aws_elb" "circles" {
     }
 }
 
-resource "aws_autoscaling_group" "circles" {
+// Rolling deployments are only available as a cloudformation primitive
+// see: https://github.com/hashicorp/terraform/issues/1552#issuecomment-190864512
+resource "aws_cloudformation_stack" "circles_autoscaling_group" {
+  name = "circles-autoscaling-group-stack"
+  template_body = <<EOF
+{
+    "Resources": {
+        "circles": {
+            "Type": "AWS::AutoScaling::AutoScalingGroup",
+            "Properties": {
+                "LaunchConfigurationName": "${aws_launch_configuration.circles.name}",
 
-    name = "circles - ${aws_launch_configuration.circles.name}"
-    launch_configuration = "${aws_launch_configuration.circles.id}"
+                "MaxSize": "${var.node_count + 1}",
+                "MinSize": "${var.node_count - 1}",
+                "DesiredCapacity": "${var.node_count}",
 
-    max_size = "${var.node_count}"
-    min_size = "${var.node_count}"
+                "HealthCheckGracePeriod" : 300,
+                "HealthCheckType": "ELB",
 
-    desired_capacity = "${var.node_count}"
-    wait_for_elb_capacity = "${var.node_count}"
+                "LoadBalancerNames": ["${aws_elb.circles.id}"],
+                "VPCZoneIdentifier": ["${aws_subnet.circles.id}"],
 
-    health_check_grace_period = 300
-    health_check_type = "ELB"
-
-    load_balancers = ["${aws_elb.circles.id}"]
-    vpc_zone_identifier = ["${aws_subnet.circles.id}"]
-
-    lifecycle {
-        create_before_destroy = true
+                "TerminationPolicies": ["OldestLaunchConfiguration", "OldestInstance"]
+            },
+            "UpdatePolicy": {
+                "AutoScalingRollingUpdate": {
+                    "MinInstancesInService": "${var.node_count - 1}",
+                    "MaxBatchSize": "1",
+                    "PauseTime": "PT0S"
+                }
+            }
+        }
     }
-
-    tags {
-        key = "Name"
-        value = "circles-autoscaling-group-${count.index}"
-        propagate_at_launch = true
-    }
+}
+EOF
 }
 
 // -----------------------------------------------------------------------------
 // NODE
 //
-// Brings up a single node running all services:
+// Defines a single node running all services:
 //
 // 1. node is booted
 // 2. cloud-init is run & bootstraps to docker-compose
