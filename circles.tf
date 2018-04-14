@@ -119,7 +119,12 @@ resource "aws_cloudformation_stack" "circles_autoscaling_group" {
                 "LoadBalancerNames": ["${aws_elb.circles.id}"],
                 "VPCZoneIdentifier": ["${aws_subnet.circles.id}"],
 
-                "TerminationPolicies": ["OldestLaunchConfiguration", "OldestInstance"]
+                "TerminationPolicies": ["OldestLaunchConfiguration", "OldestInstance"],
+                "Tags": [{
+                    "Key" : "Name",
+                    "Value" : "circles-autoscaling-group",
+                    "PropagateAtLaunch" : "true"
+                }]
             },
             "UpdatePolicy": {
                 "AutoScalingRollingUpdate": {
@@ -152,31 +157,29 @@ variable "ubuntu_release_name" {
     default = "xenial"
 }
 
-variable "docker_version" {
-    default = "docker-ce=18.03.0.ce"
-}
-
 variable "docker_compose_version" {
     default = "1.20.1"
 }
 
 // -----------------------------------------------------------------------------
 
-data "aws_ami" "ubuntu" {
+data "aws_ami" "ec2-linux" {
     most_recent = true
 
     filter {
-        name   = "name"
-        values = ["ubuntu/images/hvm-ssd/ubuntu-${var.ubuntu_release_name}-${var.ubuntu_version}-amd64-server-*"]
+        name = "name"
+        values = ["amzn-ami-*-x86_64-gp2"]
     }
 
     filter {
-        name   = "virtualization-type"
+        name = "virtualization-type"
         values = ["hvm"]
     }
 
-    // official cannonical account id
-    owners = ["099720109477"]
+    filter {
+        name = "owner-alias"
+        values = ["amazon"]
+    }
 }
 
 data "template_file" "cloud_init" {
@@ -184,7 +187,6 @@ data "template_file" "cloud_init" {
 
     vars {
         docker_compose_file = "${file("${path.module}/docker-compose.yaml")}"
-        docker_version = "${var.docker_version}"
         docker_compose_version = "${var.docker_compose_version}"
     }
 }
@@ -193,7 +195,7 @@ resource "aws_launch_configuration" "circles" {
     lifecycle { create_before_destroy = true }
 
     instance_type = "t2.micro"
-    image_id = "${data.aws_ami.ubuntu.id}"
+    image_id = "${data.aws_ami.ec2-linux.id}"
 
     security_groups = ["${aws_security_group.circles.id}"]
     user_data       = "${data.template_file.cloud_init.rendered}"
