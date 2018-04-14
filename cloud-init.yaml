@@ -7,34 +7,31 @@
 
 package_update: true
 
+users:
+  - default
+
 groups:
   - docker
 
-packages: ['docker-ce']
-
-apt:
-  sources:
-    docker:
-      source: "deb [arch=amd64] https://download.docker.com/linux/ubuntu $RELEASE stable"
-      keyid: 0EBFCD88
+packages: ['docker']
 
 write_files:
-  - path: /home/ubuntu/docker-compose.yaml
-    owner: ubuntu:ubuntu
+  - path: /home/ec2-user/docker-compose.yaml
+    owner: ec2-user:ec2-user
     permissions: '0644'
     encoding: base64
     content: ${base64encode(docker_compose_file)}
 
 runcmd:
-  # allow non root users to run docker
-  - sudo usermod -a -G docker ubuntu
-
   # keep docker deamon running
-  - sudo systemctl enable docker
+  - sudo service docker start
+
+  # allow non root users to run docker
+  - sudo usermod -a -G docker ec2-user
 
   # install docker-compose
   - sudo curl -L https://github.com/docker/compose/releases/download/${docker_compose_version}/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
   - sudo chmod +x /usr/local/bin/docker-compose
 
   # start services
-  - docker-compose -f /home/ubuntu/docker-compose.yaml up
+  - /usr/local/bin/docker-compose -f /home/ec2-user/docker-compose.yaml up
