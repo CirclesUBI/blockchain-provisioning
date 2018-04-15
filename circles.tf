@@ -1,3 +1,13 @@
+terraform {
+  backend "s3" {
+    bucket = "circles-terraform"
+    key    = "circles-terraform.tfstate"
+    region = "us-east-1"
+    dynamodb_table = "circles-terraform"
+    encrypt = true
+  }
+}
+
 provider "aws" {
     region = "eu-central-1"
 }
