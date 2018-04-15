@@ -1,8 +1,12 @@
 terraform {
   backend "s3" {
-    bucket = "circles-terraform"
+    // bucket = "circles-terraform"
+    // region = "us-east-1"
+
+    bucket = "terraform-circles"
+    region = "eu-central-1"
+
     key    = "circles-terraform.tfstate"
-    region = "us-east-1"
     dynamodb_table = "circles-terraform"
     encrypt = true
   }
@@ -55,101 +59,6 @@ resource "aws_route" "internet_access" {
 }
 
 // -----------------------------------------------------------------------------
-// LOAD BALANCER & SCALING GROUP
-//
-// Runs health checks and ensures that at least one node is always up and healthy
-// -----------------------------------------------------------------------------
-
-variable "ethstats_port" {
-    default = 3000
-}
-
-variable "ethstats_protocol" {
-    default = "http"
-}
-
-variable "node_count" {
-    default = 2
-}
-
-// -----------------------------------------------------------------------------
-
-resource "aws_elb" "circles" {
-    name = "circles"
-
-    // ethstats
-
-    listener {
-        instance_port = "${var.ethstats_port}"
-        instance_protocol = "${var.ethstats_protocol}"
-        lb_port = "${var.ethstats_port}"
-        lb_protocol = "${var.ethstats_protocol}"
-    }
-
-    health_check {
-        healthy_threshold = 3
-        unhealthy_threshold = 2
-        timeout = 10
-        target = "HTTP:${var.ethstats_port}/"
-        interval = 30
-    }
-
-    idle_timeout = 60
-    subnets         = ["${aws_subnet.circles.id}"]
-    security_groups = ["${aws_security_group.circles.id}"]
-
-    lifecycle {
-        create_before_destroy = true
-    }
-
-    tags {
-        Name = "circles-elastic-load-balancer"
-    }
-}
-
-// Rolling deployments are only available as a cloudformation primitive
-// see: https://github.com/hashicorp/terraform/issues/1552#issuecomment-190864512
-resource "aws_cloudformation_stack" "circles_autoscaling_group" {
-  name = "circles-autoscaling-group-stack"
-  template_body = <<EOF
-{
-    "Resources": {
-        "circles": {
-            "Type": "AWS::AutoScaling::AutoScalingGroup",
-            "Properties": {
-                "LaunchConfigurationName": "${aws_launch_configuration.circles.name}",
-
-                "MaxSize": "${var.node_count + 1}",
-                "MinSize": "${var.node_count - 1}",
-                "DesiredCapacity": "${var.node_count}",
-
-                "HealthCheckGracePeriod" : 300,
-                "HealthCheckType": "ELB",
-
-                "LoadBalancerNames": ["${aws_elb.circles.id}"],
-                "VPCZoneIdentifier": ["${aws_subnet.circles.id}"],
-
-                "TerminationPolicies": ["OldestLaunchConfiguration", "OldestInstance"],
-                "Tags": [{
-                    "Key" : "Name",
-                    "Value" : "circles-autoscaling-group",
-                    "PropagateAtLaunch" : "true"
-                }]
-            },
-            "UpdatePolicy": {
-                "AutoScalingRollingUpdate": {
-                    "MinInstancesInService": "${var.node_count - 1}",
-                    "MaxBatchSize": "1",
-                    "PauseTime": "PT0S"
-                }
-            }
-        }
-    }
-}
-EOF
-}
-
-// -----------------------------------------------------------------------------
 // NODE
 //
 // Defines a single node running all services:
@@ -158,14 +67,6 @@ EOF
 // 2. cloud-init is run & bootstraps to docker-compose
 // 3. docker-compose brings everything else up
 // -----------------------------------------------------------------------------
-
-variable "ubuntu_version" {
-    default = "16.04"
-}
-
-variable "ubuntu_release_name" {
-    default = "xenial"
-}
 
 variable "docker_compose_version" {
     default = "1.20.1"
@@ -201,18 +102,29 @@ data "template_file" "cloud_init" {
     }
 }
 
-resource "aws_launch_configuration" "circles" {
-    lifecycle { create_before_destroy = true }
-
+resource "aws_instance" "circles" {
     instance_type = "t2.micro"
-    image_id = "${data.aws_ami.ec2-linux.id}"
+    ami = "${data.aws_ami.ec2-linux.id}"
 
-    security_groups = ["${aws_security_group.circles.id}"]
-    user_data       = "${data.template_file.cloud_init.rendered}"
+    user_data = "${data.template_file.cloud_init.rendered}"
+
+    subnet_id = "${aws_subnet.circles.id}"
+    vpc_security_group_ids = ["${aws_security_group.circles.id}"]
+    associate_public_ip_address = true
+
+    tags {
+        Name = "circles"
+    }
 }
 
 // -----------------------------------------------------------------------------
 // FIREWALL
+// -----------------------------------------------------------------------------
+
+variable "ethstats_port" {
+    default = 3000
+}
+
 // -----------------------------------------------------------------------------
 
 resource "aws_security_group" "circles" {
@@ -239,5 +151,5 @@ resource "aws_security_group" "circles" {
 // -----------------------------------------------------------------------------
 
 output "ethstats" {
-  value = "${aws_elb.circles.dns_name}:3000"
+  value = "${aws_instance.circles.public_dns}:3000"
 }
