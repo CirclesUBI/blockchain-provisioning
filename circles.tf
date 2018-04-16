@@ -140,6 +140,10 @@ resource "aws_instance" "circles" {
 resource "aws_efs_file_system" "circles" {
     performance_mode = "maxIO"
 
+    lifecycle {
+        prevent_destroy = true
+    }
+
     tags {
         Name = "circles-efs"
     }
