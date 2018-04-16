@@ -1,3 +1,27 @@
+// -----------------------------------------------------------------------------
+// VARIABLES
+// -----------------------------------------------------------------------------
+
+variable "docker_compose_version" {
+    default = "1.20.1"
+}
+
+variable "ethstats_port" {
+    default = 3000
+}
+
+variable "region" {
+    default = "eu-central-1"
+}
+
+variable "availability_zone" {
+    default = "eu-central-1a"
+}
+
+// -----------------------------------------------------------------------------
+// PROVIDERS
+// -----------------------------------------------------------------------------
+
 terraform {
   backend "s3" {
     bucket = "circles-terraform"
@@ -10,7 +34,7 @@ terraform {
 }
 
 provider "aws" {
-    region = "eu-central-1"
+    region = "${var.region}"
 }
 
 // -----------------------------------------------------------------------------
@@ -33,8 +57,8 @@ resource "aws_vpc" "circles" {
 resource "aws_subnet" "circles" {
     vpc_id                  = "${aws_vpc.circles.id}"
     cidr_block              = "10.0.0.0/24"
+    availability_zone       = "${var.availability_zone}"
     map_public_ip_on_launch = true
-    availability_zone = "eu-central-1b"
 
     tags {
         Name = "circles-subnet"
@@ -65,12 +89,6 @@ resource "aws_route" "internet_access" {
 // 3. docker-compose brings everything else up
 // -----------------------------------------------------------------------------
 
-variable "docker_compose_version" {
-    default = "1.20.1"
-}
-
-// -----------------------------------------------------------------------------
-
 data "aws_ami" "ec2-linux" {
     most_recent = true
 
@@ -96,6 +114,7 @@ data "template_file" "cloud_init" {
     vars {
         docker_compose_file = "${file("${path.module}/docker-compose.yaml")}"
         docker_compose_version = "${var.docker_compose_version}"
+        efs_id = "${aws_efs_file_system.circles.id}"
     }
 }
 
@@ -115,13 +134,25 @@ resource "aws_instance" "circles" {
 }
 
 // -----------------------------------------------------------------------------
-// FIREWALL
+// PERSISTENT STORAGE
 // -----------------------------------------------------------------------------
 
-variable "ethstats_port" {
-    default = 3000
+resource "aws_efs_file_system" "circles" {
+    performance_mode = "maxIO"
+
+    tags {
+        Name = "circles-efs"
+    }
 }
 
+resource "aws_efs_mount_target" "circles" {
+  file_system_id = "${aws_efs_file_system.circles.id}"
+  subnet_id      = "${aws_subnet.circles.id}"
+  security_groups = ["${aws_security_group.circles_efs_mount_target.id}"]
+}
+
+// -----------------------------------------------------------------------------
+// FIREWALL
 // -----------------------------------------------------------------------------
 
 resource "aws_security_group" "circles" {
@@ -129,9 +160,28 @@ resource "aws_security_group" "circles" {
     vpc_id = "${aws_vpc.circles.id}"
 
     ingress {
-        from_port   = "${var.ethstats_port}"
-        to_port     = "${var.ethstats_port}"
-        protocol    = "tcp"
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    egress {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+}
+
+resource "aws_security_group" "circles_efs_mount_target" {
+    name = "circles_efs_mount_target"
+    vpc_id = "${aws_vpc.circles.id}"
+
+    ingress {
+        from_port   = 2049
+        to_port     = 2049
+        protocol    = "TCP"
         cidr_blocks = ["0.0.0.0/0"]
     }
 
