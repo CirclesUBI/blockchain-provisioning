@@ -1,2 +1,6 @@
+# Terraform
 *.tfstate*
 *.terraform
+
+# macOS
+.DS_Store
