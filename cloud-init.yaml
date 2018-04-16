@@ -1,37 +1,36 @@
 #cloud-config
 
 # -----------------------------------------------------------------------
-# 1. Installs docker + docker-compose
-# 2. Brings up all services specified in the docker-compose.yaml
+# - Mounts EFS volume
+# - Installs docker + docker-compose
+# - Brings up all services specified in the docker-compose.yaml
 # -----------------------------------------------------------------------
 
 package_update: true
 
-users:
-  - default
-
 groups:
   - docker
 
-packages: ['docker']
+packages: ['docker', 'amazon-efs-utils']
 
 write_files:
   - path: /home/ec2-user/docker-compose.yaml
-    owner: ec2-user:ec2-user
     permissions: '0644'
     encoding: base64
     content: ${base64encode(docker_compose_file)}
 
 runcmd:
-  # keep docker deamon running
-  - sudo service docker start
+  # mount efs filesystem
+  - sudo mkdir -p /data
+  - sudo mount -t efs ${efs_id}:/ /data
 
-  # allow non root users to run docker
-  - sudo usermod -a -G docker ec2-user
+  # prepare docker
+  - service docker restart
+  - usermod -a -G docker ec2-user
 
   # install docker-compose
-  - sudo curl -L https://github.com/docker/compose/releases/download/${docker_compose_version}/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-  - sudo chmod +x /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${docker_compose_version}/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+  - chmod +x /usr/local/bin/docker-compose
 
   # start services
   - /usr/local/bin/docker-compose -f /home/ec2-user/docker-compose.yaml up
