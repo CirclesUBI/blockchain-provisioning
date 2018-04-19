@@ -10,6 +10,18 @@ variable "ethstats_port" {
     default = 3000
 }
 
+variable "bootnode_port" {
+    default = 30301
+}
+
+variable "geth_port" {
+    default = 30303
+}
+
+variable "geth_rpc_port" {
+    default = 8545
+}
+
 variable "region" {
     default = "eu-central-1"
 }
@@ -113,16 +125,32 @@ data "template_file" "cloud_init" {
 
     vars {
         docker_compose_file = "${file("${path.module}/docker-compose.yaml")}"
+        init_chain_sh = "${file("${path.module}/init_chain.sh")}"
+        genesis_json = "${file("${path.module}/genesis.json")}"
+        get_secrets_py = "${file("${path.module}/get_secrets.py")}"
         docker_compose_version = "${var.docker_compose_version}"
         efs_id = "${aws_efs_file_system.circles.id}"
     }
+}
+
+// we use the template_cloudinit_config to gzip compress the cloud-init file (it's too big otherwise)
+data "template_cloudinit_config" "cloud_init" {
+  gzip          = true
+  base64_encode = true
+
+  part {
+    content_type = "text/cloud-config"
+    content      = "${data.template_file.cloud_init.rendered}"
+  }
 }
 
 resource "aws_instance" "circles" {
     instance_type = "t2.micro"
     ami = "${data.aws_ami.ec2-linux.id}"
 
-    user_data = "${data.template_file.cloud_init.rendered}"
+    user_data = "${data.template_cloudinit_config.cloud_init.rendered}"
+
+    iam_instance_profile = "${aws_iam_instance_profile.circles.name}"
 
     subnet_id = "${aws_subnet.circles.id}"
     vpc_security_group_ids = ["${aws_security_group.circles.id}"]
@@ -131,6 +159,61 @@ resource "aws_instance" "circles" {
     tags {
         Name = "circles"
     }
+}
+
+// -----------------------------------------------------------------------------
+// SECRETS
+//
+// Defines an IAM instance provile that allows the node to read secrets from
+// AWS secrets manager
+// -----------------------------------------------------------------------------
+
+resource "aws_iam_instance_profile" "circles" {
+  name  = "circles-secrets"
+  role = "${aws_iam_role.circles.name}"
+}
+
+resource "aws_iam_role" "circles" {
+  name = "circles-secrets"
+
+  assume_role_policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": "sts:AssumeRole",
+            "Principal": {
+               "Service": "ec2.amazonaws.com"
+            },
+            "Effect": "Allow",
+            "Sid": ""
+        }
+    ]
+}
+EOF
+}
+
+resource "aws_iam_policy_attachment" "circles" {
+  name       = "circles-secrets"
+  roles      = ["${aws_iam_role.circles.name}"]
+  policy_arn = "${aws_iam_policy.circles.arn}"
+}
+
+resource "aws_iam_policy" "circles" {
+    name = "circles-secrets"
+
+    policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "secretsmanager:GetSecretValue",
+            "Resource": "arn:aws:secretsmanager:eu-central-1:574150460280:secret:circles-secrets-zr9x30"
+        }
+    ]
+}
+EOF
 }
 
 // -----------------------------------------------------------------------------
@@ -164,9 +247,37 @@ resource "aws_security_group" "circles" {
     vpc_id = "${aws_vpc.circles.id}"
 
     ingress {
-        from_port   = 0
-        to_port     = 0
-        protocol    = "-1"
+        from_port   = "${var.ethstats_port}"
+        to_port     = "${var.ethstats_port}"
+        protocol    = "TCP"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    ingress {
+        from_port   = "${var.bootnode_port}"
+        to_port     = "${var.bootnode_port}"
+        protocol    = "UDP"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    ingress {
+        from_port   = "${var.geth_port}"
+        to_port     = "${var.geth_port}"
+        protocol    = "TCP"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    ingress {
+        from_port   = "${var.geth_port}"
+        to_port     = "${var.geth_port}"
+        protocol    = "UDP"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    ingress {
+        from_port   = "${var.geth_rpc_port}"
+        to_port     = "${var.geth_rpc_port}"
+        protocol    = "TCP"
         cidr_blocks = ["0.0.0.0/0"]
     }
 

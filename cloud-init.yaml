@@ -11,26 +11,50 @@ package_update: true
 groups:
   - docker
 
-packages: ['docker', 'amazon-efs-utils']
+packages: ['docker', 'amazon-efs-utils', 'python27-pip']
 
 write_files:
-  - path: /home/ec2-user/docker-compose.yaml
+  - path: /chain/docker-compose.yaml
     permissions: '0644'
     encoding: base64
     content: ${base64encode(docker_compose_file)}
 
+  - path: /chain/init_chain.sh
+    permissions: '0644'
+    encoding: base64
+    content: ${base64encode(init_chain_sh)}
+
+  - path: /chain/genesis.json
+    permissions: '0644'
+    encoding: base64
+    content: ${base64encode(genesis_json)}
+
+  - path: /chain/get_secrets.py
+    permissions: '0644'
+    encoding: base64
+    content: ${base64encode(get_secrets_py)}
+
 runcmd:
   # mount efs filesystem
-  - sudo mkdir -p /data
-  - sudo mount -t efs ${efs_id}:/ /data
+  - mkdir -p /chain/data
+  - mount -t efs ${efs_id}:/ /chain/data
 
   # prepare docker
-  - service docker restart
+  - service docker start
   - usermod -a -G docker ec2-user
+
+  # prepare genesis block
+  - mkdir -p /chain/data/sealer
+  - chmod 777 /chain/data/sealer
+  - /bin/bash /chain/init_chain.sh
+
+  # get secrets
+  - pip install boto3
+  - python /chain/get_secrets.py
 
   # install docker-compose
   - curl -L https://github.com/docker/compose/releases/download/${docker_compose_version}/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
   - chmod +x /usr/local/bin/docker-compose
 
   # start services
-  - /usr/local/bin/docker-compose -f /home/ec2-user/docker-compose.yaml up
+  - WS_SECRET=$(cat /chain/secrets/ws-secret) /usr/local/bin/docker-compose -f /chain/docker-compose.yaml up

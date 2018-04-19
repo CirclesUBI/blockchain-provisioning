@@ -6,4 +6,7 @@
 .DS_Store
 
 # geth
-data/sealer/
+data/
+
+# sensitive data
+secrets/

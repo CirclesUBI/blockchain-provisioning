@@ -6,7 +6,7 @@ services:
       - "3000:3000"
     restart: always
     environment:
-      WS_SECRET: circles-ethstats
+      WS_SECRET: "${WS_SECRET}"
     networks:
       circles:
 
@@ -15,7 +15,9 @@ services:
     restart: always
     ports:
       - "30301:30301"
-    command: bootnode -nodekeyhex 258b9f9b54ac3d165b96897ed154bbbc1bd4d2ca054479ea7f9fe7266171d97c
+    command: bootnode -nodekey /bootnode-key
+    volumes:
+      - ./secrets/bootnode-key:/bootnode-key:ro
     networks:
       circles:
         ipv4_address: 10.0.0.50
@@ -23,14 +25,14 @@ services:
   sealer:
     image: ethereum/client-go
     restart: always
-    command: --networkid 46781 --rpc --rpccorsdomain "*" --rpcaddr "10.0.0.51" --rpcapi "db,eth,net,web3,personal,admin,miner" --mine --datadir /data/sealer --keystore /keystore --unlock d0602f13c58c3dd37f6ef1d4997c1af506adb904 --password /keystore/password --ethstats "sealer:circles-ethstats@ethstats:3000" --bootnodes "enode://0c017f5db205d9b41573d060c8578cd95b70f45d5dcb4db471e05e8cdbf69d867af5f3ff4ec805dff2109e9ae6ee8266a4a8d95227b1223b32620b0dde8430f9@10.5.0.5:30301"
+    command: --networkid 46781 --rpc --rpccorsdomain "*" --rpcaddr "10.0.0.51" --rpcapi "db,eth,net,web3,personal,admin,miner" --mine --datadir /data/sealer --keystore /keystore --unlock e477eaddcb3d365061083f60f14a4cf4d2782f96 --password /keystore/password --ethstats "sealer:${WS_SECRET}@ethstats:3000" --bootnodes "enode://976626fcad5feb994ab05ed984ad7d91bbea7d86e02a1ac04b7b0ef5fe3f1c09fc57cde95c0a6201c208469bccce228997946ebeedb828ddafcf03d20f982c8f@10.5.0.5:30301"
     ports:
       - "8545:8545"
       - "30303:30303"
     volumes:
-      - ./data/sealer:/data/sealer
-      - ./data/genesis.json:/data/genesis.json:ro
-      - ./keystore:/keystore
+      - ./data/sealer:/data/sealer:Z
+      - ./secrets/sealer-account:/keystore/sealer-account:ro
+      - ./secrets/sealer-account-password:/keystore/password:ro
     networks:
       circles:
         ipv4_address: 10.0.0.51
