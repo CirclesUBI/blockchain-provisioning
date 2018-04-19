@@ -50,10 +50,6 @@ if __name__ == '__main__':
         f.write(get_secret("circles-secrets",
                            "sealer-account-password"))
 
-    with open(os.path.join(script_dir, 'secrets', 'bootnode-key'), 'a') as f:
-        f.write(get_secret("circles-secrets",
-                           "bootnode-key"))
-
     with open(os.path.join(script_dir, 'secrets', 'ws-secret'), 'a') as f:
         f.write(get_secret("circles-secrets",
                            "ws-secret"))
