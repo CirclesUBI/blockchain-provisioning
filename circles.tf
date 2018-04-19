@@ -164,8 +164,8 @@ resource "aws_instance" "circles" {
 // -----------------------------------------------------------------------------
 // SECRETS
 //
-// Defines an IAM instance provile that allows the node to read secrets from
-// AWS secrets manager
+// Defines an IAM instance provile that allows the node to read a single secret
+// from AWS secrets manager
 // -----------------------------------------------------------------------------
 
 resource "aws_iam_instance_profile" "circles" {
@@ -254,13 +254,6 @@ resource "aws_security_group" "circles" {
     }
 
     ingress {
-        from_port   = "${var.bootnode_port}"
-        to_port     = "${var.bootnode_port}"
-        protocol    = "UDP"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-
-    ingress {
         from_port   = "${var.geth_port}"
         to_port     = "${var.geth_port}"
         protocol    = "TCP"
@@ -313,5 +306,5 @@ resource "aws_security_group" "circles_efs_mount_target" {
 // -----------------------------------------------------------------------------
 
 output "ethstats" {
-  value = "${aws_instance.circles.public_dns}:3000"
+    value = "${aws_instance.circles.public_dns}:3000"
 }
