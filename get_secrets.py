@@ -43,13 +43,10 @@ if __name__ == '__main__':
     os.makedirs(os.path.join(script_dir, 'secrets'))
 
     with open(os.path.join(script_dir, 'secrets', 'sealer-account'), 'a') as f:
-        f.write(get_secret("circles-secrets",
-                           "sealer-account"))
+        f.write(get_secret("circles-secrets", "sealer-account"))
 
     with open(os.path.join(script_dir, 'secrets', 'sealer-account-password'), 'a') as f:
-        f.write(get_secret("circles-secrets",
-                           "sealer-account-password"))
+        f.write(get_secret("circles-secrets", "sealer-account-password"))
 
     with open(os.path.join(script_dir, 'secrets', 'ws-secret'), 'a') as f:
-        f.write(get_secret("circles-secrets",
-                           "ws-secret"))
+        f.write(get_secret("circles-secrets", "ws-secret"))
