@@ -10,3 +10,6 @@ data/
 
 # sensitive data
 secrets/
+
+# editors
+.vscode/
