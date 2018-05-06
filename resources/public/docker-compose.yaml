@@ -1,0 +1,9 @@
+version: '3'
+services:
+  ethstats:
+    image: puppeth/ethstats
+    ports:
+      - "3000:3000"
+    restart: always
+    environment:
+      WS_SECRET: "${WS_SECRET}"
