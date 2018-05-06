@@ -12,8 +12,8 @@ variable "instance_profile_name" {
 
 // Provisioning
 
-variable "cloud_init" {
-  description = "cloud_init file to be applied on instance launch"
+variable "cloud_config" {
+  description = "cloud-config file to be applied on instance launch"
   default     = ""
 }
 
@@ -29,6 +29,7 @@ variable "subnet_id" {
 
 variable "associate_public_ip" {
   description = "Should the instance have a publicly accesible IP address"
+  default     = false
 }
 
 variable "ingress_rules" {

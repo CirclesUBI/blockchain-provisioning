@@ -24,6 +24,14 @@ data "aws_ami" "ec2-linux" {
   }
 }
 
+data "template_file" "base_cloud_config" {
+  template = "${file("${path.module}/cloud-config.yaml")}"
+
+  vars {
+    get_secret_py = "${file("${path.module}/get_secret.py")}"
+  }
+}
+
 // compress cloud-init file
 data "template_cloudinit_config" "this" {
   gzip          = true
@@ -31,7 +39,14 @@ data "template_cloudinit_config" "this" {
 
   part {
     content_type = "text/cloud-config"
-    content      = "${var.cloud_init}"
+    content      = "${data.template_file.base_cloud_config.rendered}"
+    merge_type   = "list(append)+dict(recurse_array)+str()"
+  }
+
+  part {
+    content_type = "text/cloud-config"
+    content      = "${var.cloud_config}"
+    merge_type   = "list(append)+dict(recurse_array)+str()"
   }
 }
 

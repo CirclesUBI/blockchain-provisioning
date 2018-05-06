@@ -1,0 +1,17 @@
+#cloud-config
+
+package_update: true
+
+packages: ['python27-pip']
+
+users:
+  - default
+
+write_files:
+  - path: /get_secret.py
+    permissions: '0644'
+    encoding: base64
+    content: ${base64encode(get_secret_py)}
+
+runcmd:
+  - pip install boto3

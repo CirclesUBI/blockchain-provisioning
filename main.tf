@@ -46,8 +46,8 @@ module "sealer" {
   vpc_id                = "${aws_vpc.circles.id}"
   subnet_id             = "${aws_subnet.circles.id}"
 
-  ethstats_dns          = "${module.ethstats.public_dns}"
-  efs_id                = "${aws_efs_file_system.circles.id}"
+  ethstats_dns = "${module.ethstats.public_dns}"
+  efs_id       = "${aws_efs_file_system.circles.id}"
 }
 
 // -----------------------------------------------------------------------------
@@ -78,4 +78,8 @@ provider "aws" {
 
 output "ethstats" {
   value = "${module.ethstats.public_dns}:3000"
+}
+
+output "sealer" {
+  value = "${module.sealer.public_dns}"
 }
