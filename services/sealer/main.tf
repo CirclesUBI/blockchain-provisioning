@@ -4,12 +4,11 @@
 // The sealer node is responsible for creating & signing new blocks
 // -----------------------------------------------------------------------------
 
-data "template_file" "cloud_init" {
-  template = "${file("${path.module}/cloud-init.yaml")}"
+data "template_file" "cloud_config" {
+  template = "${file("${path.module}/cloud-config.yaml")}"
 
   vars {
     genesis_json   = "${file("${path.root}/resources/genesis.json")}"
-    get_secret_py  = "${file("${path.root}/resources/get_secret.py")}"
     geth_version   = "geth-linux-amd64-1.8.6-12683fec"
     geth_md5       = "46cdf19716d0614ec84b49c0e10a64ae"
     network_id     = "46781"
@@ -26,7 +25,7 @@ module "sealer" {
 
   instance_profile_name = "${var.instance_profile_name}"
 
-  cloud_init = "${data.template_file.cloud_init.rendered}"
+  cloud_config = "${data.template_file.cloud_config.rendered}"
 
   vpc_id              = "${var.vpc_id}"
   subnet_id           = "${var.subnet_id}"

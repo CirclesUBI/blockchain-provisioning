@@ -2,21 +2,13 @@
 
 package_update: true
 
-packages: ['amazon-efs-utils', 'python27-pip', 'diffutils']
-
-users:
-  - default
+packages: ['amazon-efs-utils', 'diffutils']
 
 write_files:
   - path: /chain/genesis.json
     permissions: '0644'
     encoding: base64
     content: ${base64encode(genesis_json)}
-
-  - path: /chain/get_secret.py
-    permissions: '0644'
-    encoding: base64
-    content: ${base64encode(get_secret_py)}
 
 runcmd:
   # mount efs filesystem
@@ -39,10 +31,9 @@ runcmd:
   - geth --datadir /chain/data/sealer init /chain/genesis.json
 
   # get secrets
-  - pip install boto3
-  - python /chain/get_secret.py --name "circles-secrets" --value "sealer-account" --output /chain/keystore/sealer-keyfile
-  - python /chain/get_secret.py --name "circles-secrets" --value "sealer-account-password" --output /chain/secrets/sealer-password
-  - python /chain/get_secret.py --name "circles-secrets" --value "ws-secret" --output /chain/secrets/ws-secret
+  - python /get_secret.py --name "circles-secrets" --value "sealer-account" --output /chain/keystore/sealer-keyfile
+  - python /get_secret.py --name "circles-secrets" --value "sealer-account-password" --output /chain/secrets/sealer-password
+  - python /get_secret.py --name "circles-secrets" --value "ws-secret" --output /chain/secrets/ws-secret
 
   # start sealer
   - geth --networkid ${network_id} --mine --datadir /chain/data/sealer --keystore /chain/keystore --unlock ${sealer_account} --password /chain/secrets/sealer-password --ethstats "sealer:$(cat /chain/secrets/ws-secret)@${ethstats_dns}:3000"
