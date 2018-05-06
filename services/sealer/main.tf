@@ -4,8 +4,8 @@
 // The sealer node is responsible for creating & signing new blocks
 // -----------------------------------------------------------------------------
 
-data "template_file" "sealer_cloud_init" {
-  template = "${file("${path.module}/sealer-cloud-init.yaml")}"
+data "template_file" "cloud_init" {
+  template = "${file("${path.module}/cloud-init.yaml")}"
 
   vars {
     genesis_json   = "${file("${path.root}/resources/genesis.json")}"
@@ -14,22 +14,22 @@ data "template_file" "sealer_cloud_init" {
     geth_md5       = "46cdf19716d0614ec84b49c0e10a64ae"
     network_id     = "46781"
     sealer_account = "e477eaddcb3d365061083f60f14a4cf4d2782f96"
-    efs_id         = "${aws_efs_file_system.circles.id}"
-    ethstats_dns   = "${module.ethstats.public_dns}"
+    efs_id         = "${var.efs_id}"
+    ethstats_dns   = "${var.ethstats_dns}"
   }
 }
 
 module "sealer" {
-  source = "modules/service"
+  source = "../base"
 
   name = "sealer"
 
-  instance_profile_name = "${aws_iam_instance_profile.circles.name}"
+  instance_profile_name = "${var.instance_profile_name}"
 
-  cloud_init = "${data.template_file.sealer_cloud_init.rendered}"
+  cloud_init = "${data.template_file.cloud_init.rendered}"
 
-  vpc_id              = "${aws_vpc.circles.id}"
-  subnet_id           = "${aws_subnet.circles.id}"
+  vpc_id              = "${var.vpc_id}"
+  subnet_id           = "${var.subnet_id}"
   associate_public_ip = true
 
   ingress_rules = [
