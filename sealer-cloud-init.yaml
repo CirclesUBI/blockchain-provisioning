@@ -45,5 +45,4 @@ runcmd:
   - python /chain/get_secret.py --name "circles-secrets" --value "ws-secret" --output /chain/secrets/ws-secret
 
   # start sealer
-  - |
-    geth --networkid ${network_id} --mine --datadir /chain/data/sealer --keystore /chain/keystore --unlock ${sealer_account} --password /chain/secrets/sealer-password --ethstats "sealer:$(cat /chain/secrets/ws-secret)@${ethstats_dns}:3000"
+  - geth --networkid ${network_id} --mine --datadir /chain/data/sealer --keystore /chain/keystore --unlock ${sealer_account} --password /chain/secrets/sealer-password --ethstats "sealer:$(cat /chain/secrets/ws-secret)@${ethstats_dns}:3000"

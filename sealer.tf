@@ -5,23 +5,22 @@
 // -----------------------------------------------------------------------------
 
 data "template_file" "sealer_cloud_init" {
-  template = "${file("${path.module}/resources/sealer/cloud-init.yaml")}"
+  template = "${file("${path.module}/sealer-cloud-init.yaml")}"
 
   vars {
-    genesis_json   = "${file("${path.module}/resources/shared/genesis.json")}"
-    get_secret_py  = "${file("${path.module}/resources/shared/get_secret.py")}"
+    genesis_json   = "${file("${path.root}/resources/genesis.json")}"
+    get_secret_py  = "${file("${path.root}/resources/get_secret.py")}"
     geth_version   = "geth-linux-amd64-1.8.6-12683fec"
     geth_md5       = "46cdf19716d0614ec84b49c0e10a64ae"
     network_id     = "46781"
     sealer_account = "e477eaddcb3d365061083f60f14a4cf4d2782f96"
     efs_id         = "${aws_efs_file_system.circles.id}"
-    ethstats_dns   = "${module.public.public_dns}"
+    ethstats_dns   = "${module.ethstats.public_dns}"
   }
 }
 
-
 module "sealer" {
-  source = "service"
+  source = "modules/service"
 
   name = "sealer"
 
