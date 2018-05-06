@@ -2,20 +2,8 @@
 // VARIABLES
 // -----------------------------------------------------------------------------
 
-variable "docker_compose_version" {
-  default = "1.20.1"
-}
-
-variable "ethstats_port" {
-  default = 3000
-}
-
 variable "bootnode_port" {
   default = 30301
-}
-
-variable "geth_port" {
-  default = 30303
 }
 
 variable "geth_rpc_port" {
@@ -40,6 +28,29 @@ resource "aws_key_pair" "david" {
 }
 
 // -----------------------------------------------------------------------------
+// SERVICES
+// -----------------------------------------------------------------------------
+
+module "ethstats" {
+  source = "services/ethstats"
+
+  instance_profile_name = "${aws_iam_instance_profile.circles.name}"
+  vpc_id                = "${aws_vpc.circles.id}"
+  subnet_id             = "${aws_subnet.circles.id}"
+}
+
+module "sealer" {
+  source = "services/sealer"
+
+  instance_profile_name = "${aws_iam_instance_profile.circles.name}"
+  vpc_id                = "${aws_vpc.circles.id}"
+  subnet_id             = "${aws_subnet.circles.id}"
+
+  ethstats_dns          = "${module.ethstats.public_dns}"
+  efs_id                = "${aws_efs_file_system.circles.id}"
+}
+
+// -----------------------------------------------------------------------------
 // PROVIDERS
 // -----------------------------------------------------------------------------
 
@@ -59,4 +70,12 @@ terraform {
 
 provider "aws" {
   region = "${var.region}"
+}
+
+// -----------------------------------------------------------------------------
+// PROVIDERS
+// -----------------------------------------------------------------------------
+
+output "ethstats" {
+  value = "${module.ethstats.public_dns}:3000"
 }
