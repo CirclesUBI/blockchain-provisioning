@@ -29,6 +29,7 @@ data "template_file" "base_cloud_config" {
 
   vars {
     get_secret_py = "${file("${path.module}/get_secret.py")}"
+    install_geth_py = "${file("${path.module}/install_geth.py")}"
   }
 }
 
