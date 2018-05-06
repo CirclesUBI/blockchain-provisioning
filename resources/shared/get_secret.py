@@ -1,15 +1,13 @@
 #! /usr/bin/env python
+# Downloads a secret from AWS secrets manager and puts it into the
+# specified output file
 
-# Downloads all required secrets from AWS secrets manager and puts them into
-# the 'secrets' directory on disk
-
-import boto3
+import argparse
 import ast
 import os
 
+import boto3
 from botocore.exceptions import ClientError
-
-script_dir = os.path.dirname(os.path.realpath(__file__))
 
 
 def get_secret(secret_name, secret_key):
@@ -40,13 +38,14 @@ def get_secret(secret_name, secret_key):
 
 
 if __name__ == '__main__':
-    os.makedirs(os.path.join(script_dir, 'secrets'))
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--name', action="store", required=True)
+    parser.add_argument('--value', action="store", required=True)
+    parser.add_argument('--output', action="store", required=True)
+    args = parser.parse_args()
 
-    with open(os.path.join(script_dir, 'secrets', 'sealer-account'), 'a') as f:
-        f.write(get_secret("circles-secrets", "sealer-account"))
+    if not os.path.exists(os.path.dirname(args.output)):
+        os.makedirs(os.path.dirname(args.output))
 
-    with open(os.path.join(script_dir, 'secrets', 'sealer-account-password'), 'a') as f:
-        f.write(get_secret("circles-secrets", "sealer-account-password"))
-
-    with open(os.path.join(script_dir, 'secrets', 'ws-secret'), 'a') as f:
-        f.write(get_secret("circles-secrets", "ws-secret"))
+    with open(args.output, 'w') as f:
+        f.write(get_secret(args.name, args.value))
