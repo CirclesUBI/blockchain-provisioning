@@ -7,3 +7,13 @@ services:
     restart: always
     environment:
       WS_SECRET: "${WS_SECRET}"
+
+  rpc:
+    image: ethereum/client-go
+    restart: always
+    command: --networkid 46781 --rpc --rpccorsdomain "*" --rpcaddr "0.0.0.0" --rpcapi "db,eth,net,web3,personal,admin,miner" --datadir /data/public --keystore /keystore --ethstats "rpc:${WS_SECRET}@ethstats:3000"
+    ports:
+      - "8545:8545"
+      - "30303:30303"
+    volumes:
+      - ./data/public:/data/public:Z
