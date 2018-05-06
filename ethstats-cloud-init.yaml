@@ -1,0 +1,23 @@
+#cloud-config
+
+package_update: true
+
+packages: ['docker', 'python27-pip']
+
+users:
+  - default
+
+write_files:
+  - path: /get_secret.py
+    permissions: '0644'
+    encoding: base64
+    content: ${base64encode(get_secret_py)}
+
+runcmd:
+  # get secrets
+  - pip install boto3
+  - python /get_secret.py --name "circles-secrets" --value "ws-secret" --output /secrets/ws-secret
+
+  # start ethstats
+  - service docker start
+  - docker run --publish 3000:3000 --env WS_SECRET=$(cat /secrets/ws-secret) puppeth/ethstats
