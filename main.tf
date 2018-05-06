@@ -3,31 +3,31 @@
 // -----------------------------------------------------------------------------
 
 variable "docker_compose_version" {
-    default = "1.20.1"
+  default = "1.20.1"
 }
 
 variable "ethstats_port" {
-    default = 3000
+  default = 3000
 }
 
 variable "bootnode_port" {
-    default = 30301
+  default = 30301
 }
 
 variable "geth_port" {
-    default = 30303
+  default = 30303
 }
 
 variable "geth_rpc_port" {
-    default = 8545
+  default = 8545
 }
 
 variable "region" {
-    default = "eu-central-1"
+  default = "eu-central-1"
 }
 
 variable "availability_zone" {
-    default = "eu-central-1a"
+  default = "eu-central-1a"
 }
 
 // -----------------------------------------------------------------------------
@@ -51,12 +51,12 @@ terraform {
     // bucket = "circles-terraform"
     // region = "us-east-1"
 
-    key    = "circles-terraform.tfstate"
+    key            = "circles-terraform.tfstate"
     dynamodb_table = "circles-terraform"
-    encrypt = true
+    encrypt        = true
   }
 }
 
 provider "aws" {
-    region = "${var.region}"
+  region = "${var.region}"
 }
