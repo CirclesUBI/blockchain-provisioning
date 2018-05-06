@@ -9,8 +9,9 @@ data "template_file" "cloud_config" {
 
   vars {
     genesis_json   = "${file("${path.root}/resources/genesis.json")}"
-    geth_version   = "geth-linux-amd64-1.8.6-12683fec"
-    geth_md5       = "46cdf19716d0614ec84b49c0e10a64ae"
+    geth_version   = "1.8.7"
+    geth_md5       = "ef06f6b85c29737124a1b44f3c114d02"
+    geth_commit    = "66432f38"
     network_id     = "46781"
     sealer_account = "e477eaddcb3d365061083f60f14a4cf4d2782f96"
     efs_id         = "${var.efs_id}"

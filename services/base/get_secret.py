@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # Downloads a secret from AWS secrets manager and puts it into the
 # specified output file
 

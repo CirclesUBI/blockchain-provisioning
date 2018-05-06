@@ -15,15 +15,7 @@ runcmd:
   - mkdir -p /chain/data
   - mount -t efs ${efs_id}:/ /chain/data
 
-  # install geth
-  - curl -L https://gethstore.blob.core.windows.net/builds/${geth_version}.tar.gz -o /tmp/geth.tar.gz
-
-  - md5sum /tmp/geth.tar.gz > /tmp/geth.md5.actual
-  - echo "${geth_md5}  /tmp/geth.tar.gz" > /tmp/geth.md5.expected
-  - diff -q /tmp/geth.md5.actual /tmp/geth.md5.expected || exit 1
-
-  - tar -xf /tmp/geth.tar.gz -C /tmp/ --warning=no-timestamp
-  - cp /tmp/${geth_version}/geth /usr/bin/geth
+  - python3 /install_geth.py --version=${geth_version} --commit=${geth_commit} --md5=${geth_md5}
 
   # prepare genesis block
   - mkdir -p /chain/data/sealer
@@ -31,9 +23,9 @@ runcmd:
   - geth --datadir /chain/data/sealer init /chain/genesis.json
 
   # get secrets
-  - python /get_secret.py --name "circles-secrets" --value "sealer-account" --output /chain/keystore/sealer-keyfile
-  - python /get_secret.py --name "circles-secrets" --value "sealer-account-password" --output /chain/secrets/sealer-password
-  - python /get_secret.py --name "circles-secrets" --value "ws-secret" --output /chain/secrets/ws-secret
+  - python3 /get_secret.py --name "circles-secrets" --value "sealer-account" --output /chain/keystore/sealer-keyfile
+  - python3 /get_secret.py --name "circles-secrets" --value "sealer-account-password" --output /chain/secrets/sealer-password
+  - python3 /get_secret.py --name "circles-secrets" --value "ws-secret" --output /chain/secrets/ws-secret
 
   # start sealer
   - geth --networkid ${network_id} --mine --datadir /chain/data/sealer --keystore /chain/keystore --unlock ${sealer_account} --password /chain/secrets/sealer-password --ethstats "sealer:$(cat /chain/secrets/ws-secret)@${ethstats_dns}:3000"

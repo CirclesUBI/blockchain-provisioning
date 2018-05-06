@@ -5,7 +5,7 @@ package_update: true
 packages: ['docker']
 
 runcmd:
-  - python /get_secret.py --name "circles-secrets" --value "ws-secret" --output /secrets/ws-secret
+  - python3 /get_secret.py --name "circles-secrets" --value "ws-secret" --output /secrets/ws-secret
 
   - service docker start
   - docker run --publish 3000:3000 --env WS_SECRET=$(cat /secrets/ws-secret) puppeth/ethstats

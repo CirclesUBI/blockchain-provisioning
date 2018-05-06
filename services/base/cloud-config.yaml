@@ -2,7 +2,7 @@
 
 package_update: true
 
-packages: ['python27-pip']
+packages: ['python36', 'python36-pip']
 
 users:
   - default
@@ -13,5 +13,10 @@ write_files:
     encoding: base64
     content: ${base64encode(get_secret_py)}
 
+  - path: /install_geth.py
+    permissions: '0644'
+    encoding: base64
+    content: ${base64encode(install_geth_py)}
+
 runcmd:
-  - pip install boto3
+  - pip-3.6 install boto3
