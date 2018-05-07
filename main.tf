@@ -2,14 +2,6 @@
 // VARIABLES
 // -----------------------------------------------------------------------------
 
-variable "bootnode_port" {
-  default = 30301
-}
-
-variable "geth_rpc_port" {
-  default = 8545
-}
-
 variable "region" {
   default = "eu-central-1"
 }
@@ -39,6 +31,14 @@ module "ethstats" {
   subnet_id             = "${aws_subnet.circles.id}"
 }
 
+module "bootnode" {
+  source = "services/bootnode"
+
+  instance_profile_name = "${aws_iam_instance_profile.circles.name}"
+  vpc_id                = "${aws_vpc.circles.id}"
+  subnet_id             = "${aws_subnet.circles.id}"
+}
+
 module "sealer" {
   source = "services/sealer"
 
@@ -48,32 +48,27 @@ module "sealer" {
 
   ethstats_dns = "${module.ethstats.public_dns}"
   efs_id       = "${aws_efs_file_system.circles.id}"
+
+  bootnode_port = "${module.bootnode.port}"
+  bootnode_ip   = "${module.bootnode.public_ip}"
+}
+
+module "rpc" {
+  source = "services/rpc"
+
+  instance_profile_name = "${aws_iam_instance_profile.circles.name}"
+  vpc_id                = "${aws_vpc.circles.id}"
+  subnet_id             = "${aws_subnet.circles.id}"
+
+  ethstats_dns = "${module.ethstats.public_dns}"
+  efs_id       = "${aws_efs_file_system.circles.id}"
+
+  bootnode_port = "${module.bootnode.port}"
+  bootnode_ip   = "${module.bootnode.public_ip}"
 }
 
 // -----------------------------------------------------------------------------
-// PROVIDERS
-// -----------------------------------------------------------------------------
-
-terraform {
-  backend "s3" {
-    bucket = "terraform-circles"
-    region = "eu-central-1"
-
-    // bucket = "circles-terraform"
-    // region = "us-east-1"
-
-    key            = "circles-terraform.tfstate"
-    dynamodb_table = "circles-terraform"
-    encrypt        = true
-  }
-}
-
-provider "aws" {
-  region = "${var.region}"
-}
-
-// -----------------------------------------------------------------------------
-// PROVIDERS
+// OUTPUTS
 // -----------------------------------------------------------------------------
 
 output "ethstats" {
@@ -82,4 +77,12 @@ output "ethstats" {
 
 output "sealer" {
   value = "${module.sealer.public_dns}"
+}
+
+output "rpc" {
+  value = "${module.rpc.public_dns}"
+}
+
+output "bootnode" {
+  value = "${module.bootnode.public_dns}"
 }
