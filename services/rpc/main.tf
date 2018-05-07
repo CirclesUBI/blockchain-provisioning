@@ -22,10 +22,10 @@ data "template_file" "cloud_config" {
   }
 }
 
-module "sealer" {
+module "rpc" {
   source = "../base"
 
-  name = "sealer"
+  name = "rpc"
 
   instance_profile_name = "${var.instance_profile_name}"
 
