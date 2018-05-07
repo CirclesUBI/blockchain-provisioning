@@ -3,19 +3,19 @@
 # Installs geth (including all support tools) to /usr/bin
 
 import argparse
-import os
-import urllib.request
+from distutils.dir_util import copy_tree
+import functools
 import hashlib
-from functools import partial
+import os
 import tarfile
 import tempfile
-from distutils.dir_util import copy_tree
+import urllib.request
 
 
 def md5sum(filename):
     with open(filename, mode='rb') as f:
         d = hashlib.md5()
-        for buf in iter(partial(f.read, 128), b''):
+        for buf in iter(functools.partial(f.read, 128), b''):
             d.update(buf)
     return d.hexdigest()
 

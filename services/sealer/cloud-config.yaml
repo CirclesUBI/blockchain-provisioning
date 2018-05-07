@@ -5,27 +5,28 @@ package_update: true
 packages: ['amazon-efs-utils', 'diffutils']
 
 write_files:
-  - path: /chain/genesis.json
+  - path: /genesis.json
     permissions: '0644'
     encoding: base64
     content: ${base64encode(genesis_json)}
 
 runcmd:
   # mount efs filesystem
-  - mkdir -p /chain/data
-  - mount -t efs ${efs_id}:/ /chain/data
+  - mkdir /chain
+  - mount -t efs ${efs_id}:/sealer /chain
 
+  # install geth
   - python3 /install_geth.py --version=${geth_version} --commit=${geth_commit} --md5=${geth_md5}
 
   # prepare genesis block
-  - mkdir -p /chain/data/sealer
-  - chmod 777 /chain/data/sealer
-  - geth --datadir /chain/data/sealer init /chain/genesis.json
+  - mkdir -p /chain
+  - chmod 777 /chain
+  - geth --datadir /chain init /genesis.json
 
   # get secrets
-  - python3 /get_secret.py --name "circles-secrets" --value "sealer-account" --output /chain/keystore/sealer-keyfile
-  - python3 /get_secret.py --name "circles-secrets" --value "sealer-account-password" --output /chain/secrets/sealer-password
-  - python3 /get_secret.py --name "circles-secrets" --value "ws-secret" --output /chain/secrets/ws-secret
+  - python3 /get_secret.py --name "circles-secrets" --value "sealer-account" --output /keystore/sealer-keyfile
+  - python3 /get_secret.py --name "circles-secrets" --value "sealer-account-password" --output /secrets/sealer-password
+  - python3 /get_secret.py --name "circles-secrets" --value "ws-secret" --output /secrets/ws-secret
 
   # start sealer
-  - geth --networkid ${network_id} --mine --datadir /chain/data/sealer --keystore /chain/keystore --unlock ${sealer_account} --password /chain/secrets/sealer-password --ethstats "sealer:$(cat /chain/secrets/ws-secret)@${ethstats_dns}:3000"
+  - geth --networkid ${network_id} --mine --datadir /chain --keystore /keystore --unlock ${sealer_account} --password /secrets/sealer-password --ethstats "sealer:$(cat /secrets/ws-secret)@${ethstats_dns}:3000"
