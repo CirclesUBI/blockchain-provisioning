@@ -8,10 +8,10 @@ data "template_file" "cloud_config" {
   template = "${file("${path.module}/cloud-config.yaml")}"
 
   vars {
-    geth_version   = "1.8.7"
-    geth_md5       = "ef06f6b85c29737124a1b44f3c114d02"
-    geth_commit    = "66432f38"
-    port           = ":${var.port}"
+    geth_version = "1.8.7"
+    geth_md5     = "ef06f6b85c29737124a1b44f3c114d02"
+    geth_commit  = "66432f38"
+    port         = ":${var.port}"
   }
 }
 
