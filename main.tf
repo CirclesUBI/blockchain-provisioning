@@ -72,15 +72,15 @@ module "rpc" {
 // -----------------------------------------------------------------------------
 
 output "ethstats" {
-  value = "${module.ethstats.public_dns}:3000"
+  value = "http://${module.ethstats.public_dns}:${module.ethstats.port}"
+}
+
+output "rpc" {
+  value = "http://${module.rpc.public_ip}:${module.rpc.port}"
 }
 
 output "sealer" {
   value = "${module.sealer.public_dns}"
-}
-
-output "rpc" {
-  value = "${module.rpc.public_dns}"
 }
 
 output "bootnode" {
