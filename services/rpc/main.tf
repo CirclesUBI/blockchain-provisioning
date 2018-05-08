@@ -19,6 +19,7 @@ data "template_file" "cloud_config" {
     bootnode_enode = "${var.bootnode_enode}"
     bootnode_ip    = "${var.bootnode_ip}"
     bootnode_port  = "${var.bootnode_port}"
+    rpc_port       = "${var.rpc_port}"
   }
 }
 
@@ -46,6 +47,12 @@ module "rpc" {
       from_port   = "${var.geth_port}"
       to_port     = "${var.geth_port}"
       protocol    = "UDP"
+      description = "geth"
+    },
+    {
+      from_port   = "${var.rpc_port}"
+      to_port     = "${var.rpc_port}"
+      protocol    = "TCP"
       description = "geth"
     },
   ]

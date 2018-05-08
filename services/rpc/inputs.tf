@@ -21,6 +21,11 @@ variable "geth_port" {
   default     = 30303
 }
 
+variable "rpc_port" {
+  description = "Port to expose the geth json-rpc interface on"
+  default     = 8545
+}
+
 variable "ethstats_dns" {
   description = "dns name of ethstats instance"
 }

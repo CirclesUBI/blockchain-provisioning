@@ -27,4 +27,4 @@ runcmd:
   - python3 /get_secret.py --name "circles-secrets" --value "ws-secret" --output /secrets/ws-secret
 
   # start rpc node
-  - geth --networkid ${network_id} --datadir /chain --keystore /keystore --ethstats "rpc:$(cat /secrets/ws-secret)@${ethstats_dns}:3000" --bootnodes enode://${bootnode_enode}@${bootnode_ip}:${bootnode_port}
+  - 'geth --networkid "${network_id}" --rpc --rpcapi="eb3,eth,net,debug" --rpcport "${rpc_port}" --rpcaddr "0.0.0.0" --rpccorsdomain "*" --datadir "/chain" --keystore "/keystore" --ethstats "rpc:$(cat /secrets/ws-secret)@${ethstats_dns}:3000" --bootnodes "enode://${bootnode_enode}@${bootnode_ip}:${bootnode_port}"'
