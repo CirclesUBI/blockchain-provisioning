@@ -39,7 +39,7 @@ resource "aws_iam_policy" "circles" {
         {
             "Effect": "Allow",
             "Action": "secretsmanager:GetSecretValue",
-            "Resource": "arn:aws:secretsmanager:eu-central-1:574150460280:secret:circles-secrets-zr9x30"
+            "Resource": "arn:aws:secretsmanager:eu-central-1:183869895864:secret:circles-secrets-pf58gy"
         }
     ]
 }
