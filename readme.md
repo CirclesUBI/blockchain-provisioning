@@ -9,38 +9,18 @@ This repository contains terraform scripts defining an AWS environment containin
 1. `terraform init`
 1. `terraform apply`
 
-## Running a Local Copy of the Infrastructure
-
-1. Install [docker](https://docs.docker.com/install/) and [docker-compose](https://docs.docker.com/compose/install/)
-1. `docker-compose up`
-
-## Design Overview
-
-- Single burstable EC2 instance. All services run in docker and coordinated with docker-compose.
-- Data persisted and backed up using an EBS volume & snapshots.
-- API gateway for routing.
-- Geth chain using Cliqe PoA consensus.
-- All changes to the infra go through git.
-- No ssh access.
-- Immutable (all changes trigger a full rebuild + atomic swap)
-
 ### Services
 
 - bootnode (geth)
-- miner (geth)
+- sealer (geth)
+- rpc relay node (geth)
 - monitoring dashboard (ethstats)
-- block explorer (etherscan-light)
+- block explorer (etherchain-light)
 
-### Base VM Config
+### TODO
 
-- Ubuntu 16.04 LTS
-- Provisioned with cloud-config at boot-time
-
-## TODO
-
-- logging
-- alerting
-- pin docker version
-- secret management
-  - ws_secret for ethstats [SO](https://ethereum.stackexchange.com/a/36439)
-  - bootnode key
+- [ ] RPC node is not relaying transactions to sealer
+- [ ] Backup chain data
+- [ ] Services should not be run as root
+- [ ] Elastic IP for public nodes
+- [ ] Split network into public / private subnets
