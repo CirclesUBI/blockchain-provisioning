@@ -5,12 +5,13 @@
 // security group
 // -----------------------------------------------------------------------------
 
+// Latest Amazon Linux 2 AMI
 data "aws_ami" "ec2-linux" {
   most_recent = true
 
   filter {
     name   = "name"
-    values = ["amzn-ami-*-x86_64-gp2"]
+    values = ["amzn2-ami-*-x86_64-gp2"]
   }
 
   filter {

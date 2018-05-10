@@ -2,7 +2,7 @@
 
 package_update: true
 
-packages: ['python36', 'python36-pip']
+packages: ['python3']
 
 users:
   - default
@@ -19,4 +19,4 @@ write_files:
     content: ${base64encode(install_geth_py)}
 
 runcmd:
-  - pip-3.6 install boto3
+  - pip3 install boto3
