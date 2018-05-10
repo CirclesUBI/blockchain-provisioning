@@ -21,7 +21,7 @@ This repository contains [terraform](https://www.terraform.io/) scripts defining
 #### Terraform State and Locking Table
 
 - state is persisted to an encrypted & versioned S3 bucket
-- in order to reduce the risk that a bad commit could destroy the state
+- in order to reduce the risk that a bad commit could destroy the state the required resources (S3 bucket + dynamoDB table) are managed outside of Terraform
 - specified in [providers.tf](providers.tf)
 - docs: [state](https://www.terraform.io/docs/state/index.html) | [backends](https://www.terraform.io/docs/backends/index.html)
 
