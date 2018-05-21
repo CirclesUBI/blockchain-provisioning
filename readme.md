@@ -2,6 +2,12 @@
 
 This repository contains [terraform](https://www.terraform.io/) scripts defining an AWS environment containing a private Ethereum blockchain
 
+## Using the Cluster
+
+- Monitor the current status of the cluster with our ethstats instance at: http://18.195.149.148:3000
+- Connect metamask to the RPC node at: http://35.158.180.1:8545
+- Connect your own node to the cluster using the [`gensis.json`](resources/genesis.json) and the bootnode at [35.157.62.211](35.157.62.211)
+
 ## Bringing Up the AWS environment
 
 1. Install [terraform](https://www.terraform.io/)
@@ -29,12 +35,12 @@ This repository contains [terraform](https://www.terraform.io/) scripts defining
 
 - due to the [risk of leaking state](https://www.terraform.io/docs/state/sensitive-data.html), all sensistive information should be managed outside of Terraform
 - Stored in [Secrets Manager](https://aws.amazon.com/secrets-manager/)
-- Pulled onto servers with python scripts using IAM roles defined in [secrets.tf](secrets.tf)
+- Pulled onto servers with a [python script](services/base/get_secret.py) using IAM roles defined in [iam.tf](secrets.tf)
 
 #### EFS Folder Structure
 
 - Directories in EFS can only be created by mounting an instance and running `mkdir`.
-- Would be very inefficient to do this on every mount
+- Nodes share the same EFS volume but only mount subdirectories. Subdirectories cannot be mounted until they actually exist.
 - EFS volume needs `/sealer` and `/rpc` directories (should be empty)
 
 ## Environment / Topology
