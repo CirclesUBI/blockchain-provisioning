@@ -31,6 +31,12 @@ This repository contains [terraform](https://www.terraform.io/) scripts defining
 - Stored in [Secrets Manager](https://aws.amazon.com/secrets-manager/)
 - Pulled onto servers with python scripts using IAM roles defined in [secrets.tf](secrets.tf)
 
+#### EFS Folder Structure
+
+- Directories in EFS can only be created by mounting an instance and running `mkdir`.
+- Would be very inefficient to do this on every mount
+- EFS volume needs `/sealer` and `/rpc` directories (should be empty)
+
 ## Environment / Topology
 
 ### Data Persistance
