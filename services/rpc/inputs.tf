@@ -46,3 +46,4 @@ variable "bootnode_enode" {
 variable "efs_id" {
   description = "id of the efs filesystem to use for blockchain storage"
 }
+
