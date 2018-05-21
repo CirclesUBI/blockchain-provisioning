@@ -54,12 +54,16 @@ This repository contains [terraform](https://www.terraform.io/) scripts defining
 
 - defined in [resources/genesis.json](resources/genesis.json)
 - proof of Authority chain using geth with [Clique](https://github.com/ethereum/EIPs/issues/225).
-- 1s block times
+- 5s block times
 
 ### Network
 
 - defined in [network.tf](network.tf)
 - 1 internet visible subnet inside 1 vpc. (eu-central-1a)
+
+### Logging
+
+- cloud-init logs for each instance written to cloudwatch logs
 
 ## Services
 
@@ -81,7 +85,7 @@ Each service runs on a single burstable t2.micro instance (defined in [services/
 ### [bootnode](services/bootnode/main.tf)
 
 - service discovery
-- requires open udp ports to the network (so doesn't work behind an elb)
+- requires open udp ports to the network
 - running geth
 
 ### [ethstats](services/ethstats.tf)
@@ -91,7 +95,10 @@ Each service runs on a single burstable t2.micro instance (defined in [services/
 
 ## TODO
 
-- [ ] RPC node is not relaying transactions to sealer
+- [ ] Log file will grow forever
+- [ ] Add second miner ([fixes transaciton propogation](https://github.com/ethereum/go-ethereum/issues/2769))
+- [ ] Unify geth version parameters
+- [ ] Define staging environment
 - [ ] Backup chain data
 - [ ] Services should not be run as root
 - [ ] Split network into public / private subnets
