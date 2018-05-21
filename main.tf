@@ -49,6 +49,7 @@ module "sealer" {
   ethstats_ip = "${module.ethstats.public_ip}"
   efs_id       = "${aws_efs_file_system.circles.id}"
 
+  bootnode_enode = "${var.bootnode_enode}"
   bootnode_port = "${module.bootnode.port}"
   bootnode_ip   = "${module.bootnode.public_ip}"
 }
@@ -63,6 +64,7 @@ module "rpc" {
   ethstats_ip = "${module.ethstats.public_ip}"
   efs_id       = "${aws_efs_file_system.circles.id}"
 
+  bootnode_enode = "${var.bootnode_enode}"
   bootnode_port = "${module.bootnode.port}"
   bootnode_ip   = "${module.bootnode.public_ip}"
 }

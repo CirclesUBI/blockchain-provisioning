@@ -35,7 +35,6 @@ variable "bootnode_port" {
 
 variable "bootnode_enode" {
   description = "enode for bootnode"
-  default     = "976626fcad5feb994ab05ed984ad7d91bbea7d86e02a1ac04b7b0ef5fe3f1c09fc57cde95c0a6201c208469bccce228997946ebeedb828ddafcf03d20f982c8f"
 }
 
 variable "efs_id" {
