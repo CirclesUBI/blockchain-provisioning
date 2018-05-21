@@ -1,10 +1,10 @@
 resource "aws_iam_instance_profile" "circles" {
-  name = "circles-secrets"
+  name = "circles"
   role = "${aws_iam_role.circles.name}"
 }
 
 resource "aws_iam_role" "circles" {
-  name = "circles-secrets"
+  name = "circles"
 
   assume_role_policy = <<EOF
 {
@@ -23,13 +23,13 @@ resource "aws_iam_role" "circles" {
 EOF
 }
 
-resource "aws_iam_policy_attachment" "circles" {
+resource "aws_iam_policy_attachment" "circles_secrets" {
   name       = "circles-secrets"
   roles      = ["${aws_iam_role.circles.name}"]
-  policy_arn = "${aws_iam_policy.circles.arn}"
+  policy_arn = "${aws_iam_policy.circles_secrets.arn}"
 }
 
-resource "aws_iam_policy" "circles" {
+resource "aws_iam_policy" "circles_secrets" {
   name = "circles-secrets"
 
   policy = <<EOF
@@ -44,4 +44,11 @@ resource "aws_iam_policy" "circles" {
     ]
 }
 EOF
+}
+
+
+resource "aws_iam_policy_attachment" "circles_logging" {
+  name       = "circles-logging"
+  roles      = ["${aws_iam_role.circles.name}"]
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
