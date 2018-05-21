@@ -18,9 +18,15 @@ write_files:
     encoding: base64
     content: ${base64encode(install_geth_py)}
 
+  - path: /cloudwatch.json
+    permissions: '0644'
+    encoding: base64
+    content: ${base64encode(cloudwatch_json)}
+
 runcmd:
   - pip3 install boto3
 
   - wget https://s3.amazonaws.com/amazoncloudwatch-agent/linux/amd64/latest/AmazonCloudWatchAgent.zip
   - unzip AmazonCloudWatchAgent.zip
   - ./install.sh
+  - /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/cloudwatch.json -s
