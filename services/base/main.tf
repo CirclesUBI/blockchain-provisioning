@@ -73,7 +73,19 @@ resource "aws_instance" "this" {
 
   subnet_id                   = "${var.subnet_id}"
   vpc_security_group_ids      = ["${aws_security_group.this.id}"]
-  associate_public_ip_address = "${var.associate_public_ip}"
+
+  tags {
+    Name = "circles-${var.name}"
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Static IP
+// -----------------------------------------------------------------------------
+
+resource "aws_eip" "this" {
+  instance = "${aws_instance.this.id}"
+  vpc      = true
 
   tags {
     Name = "circles-${var.name}"

@@ -27,11 +27,6 @@ variable "subnet_id" {
   description = "In which subnet should the instance be created"
 }
 
-variable "associate_public_ip" {
-  description = "Should the instance have a publicly accesible IP address"
-  default     = false
-}
-
 variable "ingress_rules" {
   description = "List of ingress rules to create"
   default     = []

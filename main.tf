@@ -46,7 +46,7 @@ module "sealer" {
   vpc_id                = "${aws_vpc.circles.id}"
   subnet_id             = "${aws_subnet.circles.id}"
 
-  ethstats_dns = "${module.ethstats.public_dns}"
+  ethstats_ip = "${module.ethstats.public_ip}"
   efs_id       = "${aws_efs_file_system.circles.id}"
 
   bootnode_port = "${module.bootnode.port}"
@@ -60,7 +60,7 @@ module "rpc" {
   vpc_id                = "${aws_vpc.circles.id}"
   subnet_id             = "${aws_subnet.circles.id}"
 
-  ethstats_dns = "${module.ethstats.public_dns}"
+  ethstats_ip = "${module.ethstats.public_ip}"
   efs_id       = "${aws_efs_file_system.circles.id}"
 
   bootnode_port = "${module.bootnode.port}"
@@ -72,7 +72,7 @@ module "rpc" {
 // -----------------------------------------------------------------------------
 
 output "ethstats" {
-  value = "http://${module.ethstats.public_dns}:${module.ethstats.port}"
+  value = "http://${module.ethstats.public_ip}:${module.ethstats.port}"
 }
 
 output "rpc" {
@@ -80,9 +80,9 @@ output "rpc" {
 }
 
 output "sealer" {
-  value = "${module.sealer.public_dns}"
+  value = "${module.sealer.public_ip}"
 }
 
 output "bootnode" {
-  value = "${module.bootnode.public_dns}"
+  value = "${module.bootnode.public_ip}"
 }

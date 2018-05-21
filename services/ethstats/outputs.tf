@@ -1,5 +1,5 @@
-output "public_dns" {
-  value = "${module.ethstats.public_dns}"
+output "public_ip" {
+  value = "${module.ethstats.public_ip}"
 }
 
 output "port" {

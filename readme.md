@@ -82,6 +82,5 @@ Each service runs on a single burstable t2.micro instance (defined in [services/
 - [ ] RPC node is not relaying transactions to sealer
 - [ ] Backup chain data
 - [ ] Services should not be run as root
-- [ ] Elastic IP for public nodes
 - [ ] Split network into public / private subnets
 - [ ] Use systemd to autorestart failed processes
