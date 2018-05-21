@@ -5,7 +5,7 @@ runcmd:
   - python3 /install_geth.py --version=${geth_version} --commit=${geth_commit} --md5=${geth_md5}
 
   # get secrets
-  - python3 /get_secret.py --name "circles-secrets" --value "bootnode-key" --output /secrets/bootnode-key
+  - python3 /get_secret.py --name "circles-bootnode-key" --value "bootnode-key" --output /secrets/bootnode-key
 
   # start bootnode
   - bootnode -nodekey /secrets/bootnode-key -addr ${port}

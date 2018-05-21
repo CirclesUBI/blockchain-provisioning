@@ -26,7 +26,7 @@ resource "aws_key_pair" "david" {
 module "ethstats" {
   source = "services/ethstats"
 
-  instance_profile_name = "${aws_iam_instance_profile.circles.name}"
+  instance_profile_name = "${aws_iam_instance_profile.ethstats.name}"
   vpc_id                = "${aws_vpc.circles.id}"
   subnet_id             = "${aws_subnet.circles.id}"
 }
@@ -34,7 +34,7 @@ module "ethstats" {
 module "bootnode" {
   source = "services/bootnode"
 
-  instance_profile_name = "${aws_iam_instance_profile.circles.name}"
+  instance_profile_name = "${aws_iam_instance_profile.bootnode.name}"
   vpc_id                = "${aws_vpc.circles.id}"
   subnet_id             = "${aws_subnet.circles.id}"
 }
@@ -42,7 +42,7 @@ module "bootnode" {
 module "sealer" {
   source = "services/sealer"
 
-  instance_profile_name = "${aws_iam_instance_profile.circles.name}"
+  instance_profile_name = "${aws_iam_instance_profile.sealer.name}"
   vpc_id                = "${aws_vpc.circles.id}"
   subnet_id             = "${aws_subnet.circles.id}"
 
@@ -56,7 +56,7 @@ module "sealer" {
 module "rpc" {
   source = "services/rpc"
 
-  instance_profile_name = "${aws_iam_instance_profile.circles.name}"
+  instance_profile_name = "${aws_iam_instance_profile.rpc.name}"
   vpc_id                = "${aws_vpc.circles.id}"
   subnet_id             = "${aws_subnet.circles.id}"
 
