@@ -46,7 +46,6 @@ resource "aws_iam_policy" "circles_secrets" {
 EOF
 }
 
-
 resource "aws_iam_policy_attachment" "circles_logging" {
   name       = "circles-logging"
   roles      = ["${aws_iam_role.circles.name}"]
