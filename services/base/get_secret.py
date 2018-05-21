@@ -34,7 +34,6 @@ def get_secret(secret_name, secret_key):
             print("The request had invalid params:", e)
     else:
         secret = ast.literal_eval(get_secret_value_response['SecretString'])
-        print(secret)
         return secret[secret_key]
 
 
