@@ -21,7 +21,7 @@ variable "geth_port" {
   default     = 30303
 }
 
-variable "ethstats_dns" {
+variable "ethstats_ip" {
   description = "dns name of ethstats instance"
 }
 

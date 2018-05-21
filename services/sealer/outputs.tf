@@ -1,3 +1,3 @@
-output "public_dns" {
-  value = "${module.sealer.public_dns}"
+output "public_ip" {
+  value = "${module.sealer.public_ip}"
 }

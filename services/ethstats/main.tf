@@ -13,7 +13,6 @@ module "ethstats" {
 
   vpc_id              = "${var.vpc_id}"
   subnet_id           = "${var.subnet_id}"
-  associate_public_ip = true
 
   ingress_rules = [
     {

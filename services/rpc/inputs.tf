@@ -26,7 +26,7 @@ variable "rpc_port" {
   default     = 8545
 }
 
-variable "ethstats_dns" {
+variable "ethstats_ip" {
   description = "dns name of ethstats instance"
 }
 
