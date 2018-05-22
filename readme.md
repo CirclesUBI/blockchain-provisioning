@@ -103,3 +103,4 @@ Each service runs on a single burstable t2.micro instance (defined in [services/
 - [ ] Services should not be run as root
 - [ ] Split network into public / private subnets
 - [ ] Use systemd to autorestart failed processes
+- [ ] Automate secret rotation
