@@ -1,5 +1,5 @@
-output "public_ip" {
-  value = "${module.ethstats.public_ip}"
+output "instance_id" {
+  value = "${module.ethstats.instance_id}"
 }
 
 output "port" {

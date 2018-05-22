@@ -1,3 +1,3 @@
-output "public_ip" {
-  value = "${module.sealer.public_ip}"
+output "instance_id" {
+  value = "${module.sealer.instance_id}"
 }

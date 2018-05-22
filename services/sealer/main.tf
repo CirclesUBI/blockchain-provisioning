@@ -13,19 +13,20 @@ data "template_file" "cloud_config" {
     geth_md5       = "ef06f6b85c29737124a1b44f3c114d02"
     geth_commit    = "66432f38"
     network_id     = "46781"
-    sealer_account = "a43deec00a60bc889af5847ebfd11d6b6f82f3a4"
     efs_id         = "${var.efs_id}"
     ethstats_ip   = "${var.ethstats_ip}"
     bootnode_enode = "${var.bootnode_enode}"
     bootnode_ip    = "${var.bootnode_ip}"
     bootnode_port  = "${var.bootnode_port}"
+    secrets_key     = "${var.secrets_key}"
+    name           = "${var.name}"
   }
 }
 
 module "sealer" {
   source = "../base"
 
-  name = "sealer"
+  name = "${var.name}"
 
   instance_profile_name = "${var.instance_profile_name}"
 

@@ -49,3 +49,4 @@ if __name__ == '__main__':
 
     with open(args.output, 'w') as f:
         f.write(get_secret(args.name, args.value))
+        print(f"pulled secret: {args.name}/{args.value}")

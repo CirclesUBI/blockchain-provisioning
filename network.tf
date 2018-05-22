@@ -39,3 +39,34 @@ resource "aws_route" "internet_access" {
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = "${aws_internet_gateway.circles.id}"
 }
+
+// -----------------------------------------------------------------------------
+// Static IP
+// -----------------------------------------------------------------------------
+
+resource "aws_eip" "ethstats" {
+  instance = "${module.ethstats.instance_id}"
+  vpc      = true
+
+  tags {
+    Name = "circles-ethstats"
+  }
+}
+
+resource "aws_eip" "rpc" {
+  instance = "${module.rpc.instance_id}"
+  vpc      = true
+
+  tags {
+    Name = "circles-rpc"
+  }
+}
+
+resource "aws_eip" "bootnode" {
+  instance = "${module.bootnode.instance_id}"
+  vpc      = true
+
+  tags {
+    Name = "circles-rpc"
+  }
+}

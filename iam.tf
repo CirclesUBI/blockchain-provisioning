@@ -21,15 +21,27 @@ variable "default_role" {
 EOF
 }
 
-// sealer
+// sealer1
 
-resource "aws_iam_instance_profile" "sealer" {
-  name = "circles-sealer"
-  role = "${aws_iam_role.sealer.name}"
+resource "aws_iam_instance_profile" "sealer1" {
+  name = "circles-sealer-1"
+  role = "${aws_iam_role.sealer1.name}"
 }
 
-resource "aws_iam_role" "sealer" {
-  name = "circles-sealer"
+resource "aws_iam_role" "sealer1" {
+  name = "circles-sealer-1"
+  assume_role_policy = "${var.default_role}"
+}
+
+// sealer2
+
+resource "aws_iam_instance_profile" "sealer2" {
+  name = "circles-sealer-2"
+  role = "${aws_iam_role.sealer2.name}"
+}
+
+resource "aws_iam_role" "sealer2" {
+  name = "circles-sealer-2"
   assume_role_policy = "${var.default_role}"
 }
 
@@ -73,16 +85,16 @@ resource "aws_iam_role" "bootnode" {
 // Policies
 // -----------------------------------------------------------------------------
 
-// Read Sealer Account
+// Read Sealer 1 Account
 
-resource "aws_iam_policy_attachment" "sealer_account" {
+resource "aws_iam_policy_attachment" "sealer1_account" {
   name       = "circles-sealer-account"
-  roles      = ["${aws_iam_role.sealer.name}"]
-  policy_arn = "${aws_iam_policy.sealer_account.arn}"
+  roles      = ["${aws_iam_role.sealer1.name}"]
+  policy_arn = "${aws_iam_policy.sealer1_account.arn}"
 }
 
-resource "aws_iam_policy" "sealer_account" {
-  name = "circles-sealer-account"
+resource "aws_iam_policy" "sealer1_account" {
+  name = "circles-sealer-1-account"
 
   policy = <<EOF
 {
@@ -91,7 +103,32 @@ resource "aws_iam_policy" "sealer_account" {
         {
             "Effect": "Allow",
             "Action": "secretsmanager:GetSecretValue",
-            "Resource": "arn:aws:secretsmanager:eu-central-1:183869895864:secret:circles-sealer-account-bim5lZ"
+            "Resource": "arn:aws:secretsmanager:eu-central-1:183869895864:secret:circles-sealer-1-kEDcJJ"
+        }
+    ]
+}
+EOF
+}
+
+// Read Sealer 2 Account
+
+resource "aws_iam_policy_attachment" "sealer2_account" {
+  name       = "circles-sealer-account"
+  roles      = ["${aws_iam_role.sealer2.name}"]
+  policy_arn = "${aws_iam_policy.sealer2_account.arn}"
+}
+
+resource "aws_iam_policy" "sealer2_account" {
+  name = "circles-sealer-2-account"
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "secretsmanager:GetSecretValue",
+            "Resource": "arn:aws:secretsmanager:eu-central-1:183869895864:secret:circles-sealer-2-mSJnoU"
         }
     ]
 }
@@ -102,7 +139,7 @@ EOF
 
 resource "aws_iam_policy_attachment" "ethstats_ws_secret" {
   name       = "circles-ethstats-ws-secret"
-  roles      = ["${aws_iam_role.sealer.name}", "${aws_iam_role.ethstats.name}", "${aws_iam_role.rpc.name}"]
+  roles      = ["${aws_iam_role.sealer1.name}", "${aws_iam_role.sealer2.name}", "${aws_iam_role.ethstats.name}", "${aws_iam_role.rpc.name}"]
   policy_arn = "${aws_iam_policy.ethstats_ws_secret.arn}"
 }
 
@@ -152,6 +189,6 @@ EOF
 
 resource "aws_iam_policy_attachment" "circles_logging" {
   name       = "circles-logging"
-  roles      = ["${aws_iam_role.sealer.name}", "${aws_iam_role.bootnode.name}", "${aws_iam_role.ethstats.name}", "${aws_iam_role.rpc.name}"]
+  roles      = ["${aws_iam_role.sealer1.name}", "${aws_iam_role.sealer2.name}", "${aws_iam_role.bootnode.name}", "${aws_iam_role.ethstats.name}", "${aws_iam_role.rpc.name}"]
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
