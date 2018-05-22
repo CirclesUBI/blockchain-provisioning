@@ -67,8 +67,6 @@ resource "aws_instance" "this" {
 
   user_data = "${data.template_cloudinit_config.this.rendered}"
 
-  key_name = "circles-david"
-
   iam_instance_profile = "${var.instance_profile_name}"
 
   subnet_id                   = "${var.subnet_id}"
