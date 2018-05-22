@@ -1,3 +1,9 @@
+// Metatdat
+
+variable "name" {
+  description = "which name should be used for all generated aws resources"
+}
+
 // IAM
 
 variable "instance_profile_name" {
@@ -39,4 +45,10 @@ variable "bootnode_enode" {
 
 variable "efs_id" {
   description = "id of the efs filesystem to use for blockchain storage"
+}
+
+// Secrets
+
+variable "secrets_key" {
+  description = "Which secrets manager key should be used to retrieve the sealer account details"
 }

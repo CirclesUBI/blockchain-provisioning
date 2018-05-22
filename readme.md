@@ -96,7 +96,6 @@ Each service runs on a single burstable t2.micro instance (defined in [services/
 ## TODO
 
 - [ ] Log file will grow forever
-- [ ] Add second miner ([fixes transaciton propogation](https://github.com/ethereum/go-ethereum/issues/2769))
 - [ ] Unify geth version parameters
 - [ ] Define staging environment
 - [ ] Backup chain data

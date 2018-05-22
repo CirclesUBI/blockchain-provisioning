@@ -39,19 +39,38 @@ module "bootnode" {
   subnet_id             = "${aws_subnet.circles.id}"
 }
 
-module "sealer" {
+module "sealer1" {
   source = "services/sealer"
+  name = "sealer-1"
 
-  instance_profile_name = "${aws_iam_instance_profile.sealer.name}"
+  secrets_key = "circles-sealer-1"
+  instance_profile_name = "${aws_iam_instance_profile.sealer1.name}"
   vpc_id                = "${aws_vpc.circles.id}"
   subnet_id             = "${aws_subnet.circles.id}"
 
-  ethstats_ip = "${module.ethstats.public_ip}"
+  ethstats_ip = "${aws_eip.ethstats.public_ip}"
   efs_id       = "${aws_efs_file_system.circles.id}"
 
   bootnode_enode = "${var.bootnode_enode}"
   bootnode_port = "${module.bootnode.port}"
-  bootnode_ip   = "${module.bootnode.public_ip}"
+  bootnode_ip   = "${aws_eip.bootnode.public_ip}"
+}
+
+module "sealer2" {
+  source = "services/sealer"
+  name = "sealer-2"
+
+  secrets_key = "circles-sealer-2"
+  instance_profile_name = "${aws_iam_instance_profile.sealer2.name}"
+  vpc_id                = "${aws_vpc.circles.id}"
+  subnet_id             = "${aws_subnet.circles.id}"
+
+  ethstats_ip = "${aws_eip.ethstats.public_ip}"
+  efs_id       = "${aws_efs_file_system.circles.id}"
+
+  bootnode_enode = "${var.bootnode_enode}"
+  bootnode_port = "${module.bootnode.port}"
+  bootnode_ip   = "${aws_eip.bootnode.public_ip}"
 }
 
 module "rpc" {
@@ -61,12 +80,12 @@ module "rpc" {
   vpc_id                = "${aws_vpc.circles.id}"
   subnet_id             = "${aws_subnet.circles.id}"
 
-  ethstats_ip = "${module.ethstats.public_ip}"
+  ethstats_ip = "${aws_eip.ethstats.public_ip}"
   efs_id       = "${aws_efs_file_system.circles.id}"
 
   bootnode_enode = "${var.bootnode_enode}"
   bootnode_port = "${module.bootnode.port}"
-  bootnode_ip   = "${module.bootnode.public_ip}"
+  bootnode_ip   = "${aws_eip.bootnode.public_ip}"
 }
 
 // -----------------------------------------------------------------------------
@@ -74,17 +93,9 @@ module "rpc" {
 // -----------------------------------------------------------------------------
 
 output "ethstats" {
-  value = "http://${module.ethstats.public_ip}:${module.ethstats.port}"
+  value = "http://${aws_eip.ethstats.public_ip}:${module.ethstats.port}"
 }
 
 output "rpc" {
-  value = "http://${module.rpc.public_ip}:${module.rpc.port}"
-}
-
-output "sealer" {
-  value = "${module.sealer.public_ip}"
-}
-
-output "bootnode" {
-  value = "${module.bootnode.public_ip}"
+  value = "http://${aws_eip.rpc.public_ip}:${module.rpc.port}"
 }

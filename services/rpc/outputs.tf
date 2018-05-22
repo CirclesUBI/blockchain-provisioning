@@ -1,5 +1,5 @@
-output "public_ip" {
-  value = "${module.rpc.public_ip}"
+output "instance_id" {
+  value = "${module.rpc.instance_id}"
 }
 
 output "port" {
