@@ -69,7 +69,7 @@ This repository contains [terraform](https://www.terraform.io/) scripts defining
 
 Each service runs on a single burstable t2.micro instance (defined in [services/base.tf](services/base/main.tf)).
 
-### [sealer](services/sealer/main.tf)
+### [sealer](services/sealer/main.tf) (x2)
 
 - produces blocks
 - holds private keys
