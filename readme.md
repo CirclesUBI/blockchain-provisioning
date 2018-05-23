@@ -2,6 +2,10 @@
 
 This repository contains [terraform](https://www.terraform.io/) scripts defining an AWS environment containing a private Ethereum blockchain
 
+## Status
+
+Running, but under heavy development. Not production ready. See [todo](#todo)
+
 ## Using the Cluster
 
 - Monitor the current status of the cluster with our ethstats instance at: http://18.184.187.168:3000
