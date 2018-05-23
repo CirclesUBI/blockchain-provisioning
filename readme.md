@@ -99,12 +99,17 @@ Each service runs on a single burstable t2.micro instance (defined in [services/
 
 ## TODO
 
-- [ ] Log file will grow forever
+### Big
+
+- [ ] Segregate sealer nodes into a private subnet
+- [ ] Define staging environment & deployment pipeline
+- [ ] Define (and ideally automate) secret rotation procedures
+- [ ] Backup chain state (ideally some versioned / snapshotting system). Test restoration from these backups.
+- [ ] Block explorer
+
+### Small
+
+- [ ] Cap size of log file on disk
 - [ ] Unify geth version parameters
-- [ ] Define staging environment
-- [ ] Backup chain data
 - [ ] Services should not be run as root
-- [ ] Split network into public / private subnets
 - [ ] Use systemd to autorestart failed processes
-- [ ] Automate secret rotation
-- [ ] Add block explorer
