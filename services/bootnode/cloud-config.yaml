@@ -8,4 +8,4 @@ runcmd:
   - python3 /get_secret.py --name "circles-bootnode-key" --value "bootnode-key" --output /secrets/bootnode-key
 
   # start bootnode
-  - bootnode -nodekey /secrets/bootnode-key -addr ${port}
+  - bootnode -nodekey /secrets/bootnode-key -addr ${port} -verbosity 9
