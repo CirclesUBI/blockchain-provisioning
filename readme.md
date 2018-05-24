@@ -102,10 +102,12 @@ Each service runs on a single burstable t2.micro instance (defined in [services/
 ### Big
 
 - [ ] Segregate sealer nodes into a private subnet
+- [ ] Block explorer
 - [ ] Define staging environment & deployment pipeline
+- [ ] Bootnode should be stateful
+- [ ] Authentication for RPC endpoints
 - [ ] Define (and ideally automate) secret rotation procedures
 - [ ] Backup chain state (ideally some versioned / snapshotting system). Test restoration from these backups.
-- [ ] Block explorer
 
 ### Small
 
