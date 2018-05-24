@@ -1,8 +1,5 @@
 // -----------------------------------------------------------------------------
-// NETWORK
-//
-// Defines a VPC with a single publicly visible subnet
-// see: https://ops.tips/blog/a-pratical-look-at-basic-aws-networking/
+// VPC
 // -----------------------------------------------------------------------------
 
 module "vpc" {

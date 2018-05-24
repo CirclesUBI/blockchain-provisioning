@@ -63,7 +63,7 @@ Running, but under heavy development. Not production ready. See [todo](#todo)
 ### Network
 
 - defined in [network.tf](network.tf)
-- 1 internet visible subnet inside 1 vpc. (eu-central-1a)
+- 1 private & 1 public subnet in eu-central-1
 
 ### Logging
 
@@ -78,6 +78,7 @@ Each service runs on a single burstable t2.micro instance (defined in [services/
 - produces blocks
 - holds private keys
 - running geth
+- private subnet
 
 ### [rpc](services/rpc/main.tf)
 
@@ -85,17 +86,20 @@ Each service runs on a single burstable t2.micro instance (defined in [services/
 - relays blocks to sealer
 - allows interaction with metamask
 - running geth
+- public subnet
 
 ### [bootnode](services/bootnode/main.tf)
 
 - service discovery
 - requires open udp ports to the network
 - running geth
+- public subnet
 
 ### [ethstats](services/ethstats.tf)
 
 - monitoring dashboard for the cluster
 - running [eth-netstats](https://github.com/cubedro/eth-netstats)
+- public subnet
 
 ## TODO
 
