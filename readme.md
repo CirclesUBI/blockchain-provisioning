@@ -10,7 +10,7 @@ Running, but under heavy development. Not production ready. See [todo](#todo)
 
 - Monitor the current status of the cluster with our ethstats instance at: [stats.circles.com](http://stats.circles-chain.com)
 - Connect metamask to the RPC node at: http://18.184.227.148:8545
-- Connect your own node to the cluster using the [`gensis.json`](resources/genesis.json) and the bootnode at [35.157.62.211](35.157.62.211)
+- Connect your own node to the cluster using the [`gensis.json`](resources/genesis.json) and the bootnode at [boot.circles-chain.com](http://boot.circles-chain.com)
 
 ## Bringing Up the AWS environment
 
@@ -108,6 +108,7 @@ Each service runs on a single burstable t2.micro instance (defined in [services/
 
 ### Small
 
+- [ ] metamask cannot connect to rpc w./ DNS, only w./ IP
 - [ ] Cap size of log file on disk
 - [ ] Unify geth version parameters
 - [ ] Services should not be run as root
