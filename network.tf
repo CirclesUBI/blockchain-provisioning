@@ -7,6 +7,7 @@
 
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
+  version = "1.32.0"
 
   name = "circles-vpc"
   cidr = "10.0.0.0/16"
