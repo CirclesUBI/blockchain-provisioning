@@ -18,16 +18,16 @@ module "ethstats" {
   source = "services/ethstats"
 
   instance_profile_name = "${aws_iam_instance_profile.ethstats.name}"
-  vpc_id                = "${aws_vpc.circles.id}"
-  subnet_id             = "${aws_subnet.circles.id}"
+  vpc_id                = "${module.vpc.vpc_id}"
+  subnet_id             = "${local.public_subnet_id}"
 }
 
 module "bootnode" {
   source = "services/bootnode"
 
   instance_profile_name = "${aws_iam_instance_profile.bootnode.name}"
-  vpc_id                = "${aws_vpc.circles.id}"
-  subnet_id             = "${aws_subnet.circles.id}"
+  vpc_id                = "${module.vpc.vpc_id}"
+  subnet_id             = "${local.public_subnet_id}"
 }
 
 module "sealer1" {
@@ -36,8 +36,8 @@ module "sealer1" {
 
   secrets_key = "circles-sealer-1"
   instance_profile_name = "${aws_iam_instance_profile.sealer1.name}"
-  vpc_id                = "${aws_vpc.circles.id}"
-  subnet_id             = "${aws_subnet.circles.id}"
+  vpc_id                = "${module.vpc.vpc_id}"
+  subnet_id             = "${local.public_subnet_id}"
 
   ethstats = "${module.ethstats.public_ip}:${module.ethstats.port}"
   efs_id       = "${aws_efs_file_system.circles.id}"
@@ -53,8 +53,8 @@ module "sealer2" {
 
   secrets_key = "circles-sealer-2"
   instance_profile_name = "${aws_iam_instance_profile.sealer2.name}"
-  vpc_id                = "${aws_vpc.circles.id}"
-  subnet_id             = "${aws_subnet.circles.id}"
+  vpc_id                = "${module.vpc.vpc_id}"
+  subnet_id             = "${local.public_subnet_id}"
 
   ethstats = "${module.ethstats.public_ip}:${module.ethstats.port}"
   efs_id       = "${aws_efs_file_system.circles.id}"
@@ -68,8 +68,8 @@ module "rpc" {
   source = "services/rpc"
 
   instance_profile_name = "${aws_iam_instance_profile.rpc.name}"
-  vpc_id                = "${aws_vpc.circles.id}"
-  subnet_id             = "${aws_subnet.circles.id}"
+  vpc_id                = "${module.vpc.vpc_id}"
+  subnet_id             = "${local.public_subnet_id}"
 
   ethstats = "${module.ethstats.public_ip}:${module.ethstats.port}"
   efs_id       = "${aws_efs_file_system.circles.id}"

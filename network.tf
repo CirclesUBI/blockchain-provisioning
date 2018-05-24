@@ -5,39 +5,23 @@
 // see: https://ops.tips/blog/a-pratical-look-at-basic-aws-networking/
 // -----------------------------------------------------------------------------
 
-resource "aws_vpc" "circles" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
+module "vpc" {
+  source = "terraform-aws-modules/vpc/aws"
 
-  tags {
-    Name = "circles-vpc"
-  }
+  name = "circles-vpc"
+  cidr = "10.0.0.0/16"
+
+  azs             = ["${var.availability_zone}"]
+  private_subnets = ["10.0.1.0/24"]
+  public_subnets  = ["10.0.101.0/24"]
+
+  enable_nat_gateway = true
+  enable_vpn_gateway = false
 }
 
-resource "aws_subnet" "circles" {
-  vpc_id                  = "${aws_vpc.circles.id}"
-  cidr_block              = "10.0.0.0/24"
-  availability_zone       = "${var.availability_zone}"
-  map_public_ip_on_launch = true
-
-  tags {
-    Name = "circles-subnet"
-  }
-}
-
-resource "aws_internet_gateway" "circles" {
-  vpc_id = "${aws_vpc.circles.id}"
-
-  tags {
-    Name = "circles-internet-gateway"
-  }
-}
-
-resource "aws_route" "internet_access" {
-  route_table_id         = "${aws_vpc.circles.main_route_table_id}"
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = "${aws_internet_gateway.circles.id}"
+locals {
+  public_subnet_id = "${module.vpc.public_subnets[0]}"
+  private_subnet_id = "${module.vpc.private_subnets[0]}"
 }
 
 // -----------------------------------------------------------------------------
