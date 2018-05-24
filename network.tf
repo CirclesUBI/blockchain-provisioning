@@ -48,7 +48,7 @@ resource "aws_route53_zone" "circles" {
   name = "${var.domain}"
 }
 
-resource "aws_route53_record" "stats" {
+resource "aws_route53_record" "ethstats" {
   zone_id = "${aws_route53_zone.circles.zone_id}"
   name    = "stats.${var.domain}"
   type    = "A"

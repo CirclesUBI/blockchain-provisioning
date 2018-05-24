@@ -14,7 +14,7 @@ data "template_file" "cloud_config" {
     geth_commit    = "66432f38"
     network_id     = "46781"
     efs_id         = "${var.efs_id}"
-    ethstats_ip   = "${var.ethstats_ip}"
+    ethstats   = "${var.ethstats}"
     bootnode_enode = "${var.bootnode_enode}"
     bootnode_ip    = "${var.bootnode_ip}"
     bootnode_port  = "${var.bootnode_port}"

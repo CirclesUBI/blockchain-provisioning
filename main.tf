@@ -39,7 +39,7 @@ module "sealer1" {
   vpc_id                = "${aws_vpc.circles.id}"
   subnet_id             = "${aws_subnet.circles.id}"
 
-  ethstats_ip = "${module.ethstats.public_ip}"
+  ethstats = "${module.ethstats.public_ip}:${module.ethstats.port}"
   efs_id       = "${aws_efs_file_system.circles.id}"
 
   bootnode_enode = "${var.bootnode_enode}"
@@ -56,7 +56,7 @@ module "sealer2" {
   vpc_id                = "${aws_vpc.circles.id}"
   subnet_id             = "${aws_subnet.circles.id}"
 
-  ethstats_ip = "${module.ethstats.public_ip}"
+  ethstats = "${module.ethstats.public_ip}:${module.ethstats.port}"
   efs_id       = "${aws_efs_file_system.circles.id}"
 
   bootnode_enode = "${var.bootnode_enode}"
@@ -71,7 +71,7 @@ module "rpc" {
   vpc_id                = "${aws_vpc.circles.id}"
   subnet_id             = "${aws_subnet.circles.id}"
 
-  ethstats_ip = "${module.ethstats.public_ip}"
+  ethstats = "${module.ethstats.public_ip}:${module.ethstats.port}"
   efs_id       = "${aws_efs_file_system.circles.id}"
 
   bootnode_enode = "${var.bootnode_enode}"
@@ -84,7 +84,7 @@ module "rpc" {
 // -----------------------------------------------------------------------------
 
 output "ethstats" {
-  value = "http://${module.ethstats.public_ip}:${module.ethstats.port}"
+  value = "http://${aws_route53_record.ethstats.fqdn}:${module.ethstats.port}"
 }
 
 output "rpc" {

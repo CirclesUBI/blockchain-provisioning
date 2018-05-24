@@ -27,8 +27,8 @@ variable "geth_port" {
   default     = 30303
 }
 
-variable "ethstats_ip" {
-  description = "dns name of ethstats instance"
+variable "ethstats" {
+  description = "hostname:port for ethstats"
 }
 
 variable "bootnode_ip" {

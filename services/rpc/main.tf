@@ -15,7 +15,7 @@ data "template_file" "cloud_config" {
     network_id     = "46781"
     sealer_account = "e477eaddcb3d365061083f60f14a4cf4d2782f96"
     efs_id         = "${var.efs_id}"
-    ethstats_ip   = "${var.ethstats_ip}"
+    ethstats   = "${var.ethstats}"
     bootnode_enode = "${var.bootnode_enode}"
     bootnode_ip    = "${var.bootnode_ip}"
     bootnode_port  = "${var.bootnode_port}"

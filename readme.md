@@ -8,7 +8,7 @@ Running, but under heavy development. Not production ready. See [todo](#todo)
 
 ## Using the Cluster
 
-- Monitor the current status of the cluster with our ethstats instance at: http://18.184.187.168:3000
+- Monitor the current status of the cluster with our ethstats instance at: [stats.circles.com](http://stats.circles-chain.com)
 - Connect metamask to the RPC node at: http://18.184.227.148:8545
 - Connect your own node to the cluster using the [`gensis.json`](resources/genesis.json) and the bootnode at [35.157.62.211](35.157.62.211)
 

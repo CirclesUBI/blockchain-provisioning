@@ -26,8 +26,8 @@ variable "rpc_port" {
   default     = 8545
 }
 
-variable "ethstats_ip" {
-  description = "dns name of ethstats instance"
+variable "ethstats" {
+  description = "hostname:port for ethstats"
 }
 
 variable "bootnode_ip" {
