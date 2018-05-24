@@ -41,17 +41,24 @@ resource "aws_route" "internet_access" {
 }
 
 // -----------------------------------------------------------------------------
-// Static IP
+// DNS
 // -----------------------------------------------------------------------------
 
-resource "aws_eip" "ethstats" {
-  instance = "${module.ethstats.instance_id}"
-  vpc      = true
-
-  tags {
-    Name = "circles-ethstats"
-  }
+resource "aws_route53_zone" "circles" {
+  name = "${var.domain}"
 }
+
+resource "aws_route53_record" "stats" {
+  zone_id = "${aws_route53_zone.circles.zone_id}"
+  name    = "stats.${var.domain}"
+  type    = "A"
+  ttl     = "300"
+  records = ["${module.ethstats.public_ip}"]
+}
+
+// -----------------------------------------------------------------------------
+// Static IP
+// -----------------------------------------------------------------------------
 
 resource "aws_eip" "rpc" {
   instance = "${module.rpc.instance_id}"
