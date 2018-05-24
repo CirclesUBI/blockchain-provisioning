@@ -5,9 +5,16 @@
 import argparse
 import ast
 import os
+import sys
 
 import boto3
 from botocore.exceptions import ClientError
+
+# this utility deals with plaintext secrets.
+# cloud-init stdout is sent to cloudwatch.
+# printing here is dangerous so redirect stdout -> /dev/null.
+f = open(os.devnull, 'w')
+sys.stdout = f
 
 
 def get_secret(secret_name, secret_key):
