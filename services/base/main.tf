@@ -39,6 +39,7 @@ data "template_file" "base_cloud_config" {
   vars {
     get_secret_py   = "${file("${path.module}/scripts/get_secret.py")}"
     install_geth_py = "${file("${path.module}/scripts/install_geth.py")}"
+    compare_sha256_py = "${file("${path.module}/scripts/compare_sha256.py")}"
     cloudwatch_json = "${data.template_file.cloudwatch_config.rendered}"
   }
 }
