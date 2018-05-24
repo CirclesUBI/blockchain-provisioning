@@ -56,21 +56,20 @@ resource "aws_route53_record" "ethstats" {
   records = ["${module.ethstats.public_ip}"]
 }
 
+resource "aws_route53_record" "bootnode" {
+  zone_id = "${aws_route53_zone.circles.zone_id}"
+  name    = "boot.${var.domain}"
+  type    = "A"
+  ttl     = "300"
+  records = ["${module.bootnode.public_ip}"]
+}
+
 // -----------------------------------------------------------------------------
 // Static IP
 // -----------------------------------------------------------------------------
 
 resource "aws_eip" "rpc" {
   instance = "${module.rpc.instance_id}"
-  vpc      = true
-
-  tags {
-    Name = "circles-rpc"
-  }
-}
-
-resource "aws_eip" "bootnode" {
-  instance = "${module.bootnode.instance_id}"
   vpc      = true
 
   tags {

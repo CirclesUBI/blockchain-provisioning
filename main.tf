@@ -44,7 +44,7 @@ module "sealer1" {
 
   bootnode_enode = "${var.bootnode_enode}"
   bootnode_port = "${module.bootnode.port}"
-  bootnode_ip   = "${aws_eip.bootnode.public_ip}"
+  bootnode_ip   = "${module.bootnode.public_ip}"
 }
 
 module "sealer2" {
@@ -61,7 +61,7 @@ module "sealer2" {
 
   bootnode_enode = "${var.bootnode_enode}"
   bootnode_port = "${module.bootnode.port}"
-  bootnode_ip   = "${aws_eip.bootnode.public_ip}"
+  bootnode_ip   = "${module.bootnode.public_ip}"
 }
 
 module "rpc" {
@@ -76,7 +76,7 @@ module "rpc" {
 
   bootnode_enode = "${var.bootnode_enode}"
   bootnode_port = "${module.bootnode.port}"
-  bootnode_ip   = "${aws_eip.bootnode.public_ip}"
+  bootnode_ip   = "${module.bootnode.public_ip}"
 }
 
 // -----------------------------------------------------------------------------
