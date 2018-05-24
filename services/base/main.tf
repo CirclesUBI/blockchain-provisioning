@@ -37,8 +37,8 @@ data "template_file" "base_cloud_config" {
   template = "${file("${path.module}/cloud-config.yaml")}"
 
   vars {
-    get_secret_py   = "${file("${path.module}/get_secret.py")}"
-    install_geth_py = "${file("${path.module}/install_geth.py")}"
+    get_secret_py   = "${file("${path.module}/scripts/get_secret.py")}"
+    install_geth_py = "${file("${path.module}/scripts/install_geth.py")}"
     cloudwatch_json = "${data.template_file.cloudwatch_config.rendered}"
   }
 }
