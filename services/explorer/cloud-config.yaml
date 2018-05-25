@@ -3,25 +3,27 @@
 packages: ['docker']
 
 write_files:
-  - path: /container/chainspec.json
+  - path: /genesis.json
     permissions: '0644'
     encoding: base64
-    content: ${base64encode(chainspec_json)}
+    content: ${base64encode(genesis_json)}
 
-  - path: /container/ethstats.json
+  - path: /docker-compose.yaml
     permissions: '0644'
     encoding: base64
-    content: ${base64encode(ethstats_json)}
-
-  - path: /container/Dockerfile
-    permissions: '0644'
-    encoding: base64
-    content: ${base64encode(dockerfile)}
+    content: ${base64encode(docker_compose)}
 
 runcmd:
-  - python3 /get_secret.py --name "circles-ws-secret" --value "ws-secret" --output /secrets/ws-secret
-  - bash -c 'sed -i -e "s/<<-!replaced_during_cloud_init!->>/$(cat /secrets/ws-secret)/g" /container/chainspec.json'
+  - mkdir /chain
+  - mount -t efs ${efs_id}:/explorer/geth /chain
+  - mount -t efs ${efs_id}:/explorer/mongo /mongo
+
+  - chmod 777 /chain
+  - chmod 777 /mongo
 
   - systemctl start docker.service
-  - cd /container/ && docker build -t circles-explorer .
-  - docker run -p ${parity_port}:${parity_port} -p ${parity_port}:${parity_port}/udp -p ${explorer_port}:3000 circles-explorer
+  - pip3 install docker-compose
+
+  - python3 /get_secret.py --name "circles-ws-secret" --value "ws-secret" --output /secrets/ws-secret
+
+  - bash -c 'BOOTNODE_ADDRESS=${bootnode_address} ETHSTATS_ADDRESS=${ethstats_address} WS_SECRET="$(cat /secrets/ws-secret)" WEB_PORT="${explorer_port}" docker-compose -f /docker-compose.yaml up'

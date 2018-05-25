@@ -14,14 +14,14 @@ variable "subnet_id" {
   description = "In which subnet should the instance be created"
 }
 
-variable "parity_port" {
-  description = "Which port should be opeened for parity ethereum network communication (UDP & TCP)"
-  default = "30303"
-}
-
 variable "explorer_port" {
   description = "Which port should be used to serve the explorer"
   default = "80"
+}
+
+variable "geth_port" {
+  description = "Port to expose geth on"
+  default     = 30303
 }
 
 // App config
@@ -40,4 +40,10 @@ variable "bootnode_port" {
 
 variable "bootnode_enode" {
   description = "enode for bootnode"
+}
+
+// Storage
+
+variable "efs_id" {
+  description = "id of the efs filesystem to use for blockchain storage"
 }

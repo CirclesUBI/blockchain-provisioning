@@ -37,6 +37,8 @@ module "explorer" {
   vpc_id                = "${module.vpc.vpc_id}"
   subnet_id             = "${local.public_subnet_id}"
 
+  efs_id       = "${aws_efs_file_system.circles.id}"
+
   ethstats = "${module.ethstats.public_ip}:${module.ethstats.port}"
   bootnode_enode = "${var.bootnode_enode}"
   bootnode_port = "${module.bootnode.port}"

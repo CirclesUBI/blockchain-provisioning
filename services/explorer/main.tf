@@ -4,33 +4,16 @@
 // The explorer runs an instance of the etherchain light block explorer
 // -----------------------------------------------------------------------------
 
-data "template_file" "ethstats_json" {
-  template = "${file("${path.module}/ethstats.json")}"
-
-  vars {
-    ethstats = "${var.ethstats}"
-  }
-}
-
-data "template_file" "dockerfile" {
-  template = "${file("${path.module}/Dockerfile")}"
-
-  vars {
-    bootnode_enode = "${var.bootnode_enode}"
-    bootnode_ip = "${var.bootnode_ip}"
-    bootnode_port = "${var.bootnode_port}"
-  }
-}
-
 data "template_file" "cloud_config" {
   template = "${file("${path.module}/cloud-config.yaml")}"
 
   vars {
-    chainspec_json = "${file("${path.root}/resources/chainspec.json")}"
-    dockerfile = "${data.template_file.dockerfile.rendered}"
-    ethstats_json = "${data.template_file.ethstats_json.rendered}"
-    parity_port = "${var.parity_port}"
+    docker_compose = "${file("${path.module}/docker-compose.yaml")}"
+    bootnode_address = "${var.bootnode_ip}:${var.bootnode_port}"
+    ethstats_address = "${var.ethstats}"
+    efs_id = "${var.efs_id}"
     explorer_port = "${var.explorer_port}"
+    genesis_json = "${file("${path.root}/resources/genesis.json")}"
   }
 }
 
@@ -48,14 +31,14 @@ module "explorer" {
 
   ingress_rules = [
     {
-      from_port   = "${var.parity_port}"
-      to_port     = "${var.parity_port}"
+      from_port   = "${var.geth_port}"
+      to_port     = "${var.geth_port}"
       protocol    = "TCP"
       description = "parity"
     },
     {
-      from_port   = "${var.parity_port}"
-      to_port     = "${var.parity_port}"
+      from_port   = "${var.geth_port}"
+      to_port     = "${var.geth_port}"
       protocol    = "UDP"
       description = "parity"
     },
