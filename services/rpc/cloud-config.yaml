@@ -27,4 +27,4 @@ runcmd:
   - python3 /get_secret.py --name "circles-ws-secret" --value "ws-secret" --output /secrets/ws-secret
 
   # start rpc node
-  - 'geth --syncmode "full" --networkid "${network_id}" --rpc --rpcapi="eb3,eth,net,debug" --rpcport "${rpc_port}" --rpcaddr "0.0.0.0" --rpccorsdomain "*" --datadir "/chain" --keystore "/keystore" --ethstats "rpc:$(cat /secrets/ws-secret)@${ethstats}" --bootnodes "enode://${bootnode_enode}@${bootnode_ip}:${bootnode_port}"'
+  - 'geth --maxpeers 1000 --syncmode "full" --networkid "${network_id}" --rpc --rpcapi="eb3,eth,net,debug" --rpcport "${rpc_port}" --rpcaddr "0.0.0.0" --rpccorsdomain "*" --datadir "/chain" --keystore "/keystore" --ethstats "rpc:$(cat /secrets/ws-secret)@${ethstats}" --bootnodes "enode://${bootnode_enode}@${bootnode_ip}:${bootnode_port}"'
