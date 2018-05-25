@@ -105,7 +105,7 @@ Each service runs on a single burstable t2.micro instance (defined in [services/
 
 ### Big
 
-- [ ] Block explorer
+- [ ] Block explorer -> blocked by https://github.com/poanetwork/poa-explorer/pull/196
 - [ ] Define staging environment & deployment pipeline
 - [ ] Bootnode should be stateful
 - [ ] Authentication for RPC endpoints
