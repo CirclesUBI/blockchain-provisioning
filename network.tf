@@ -3,7 +3,7 @@
 // -----------------------------------------------------------------------------
 
 module "vpc" {
-  source = "terraform-aws-modules/vpc/aws"
+  source  = "terraform-aws-modules/vpc/aws"
   version = "1.32.0"
 
   name = "circles-vpc"
@@ -18,7 +18,7 @@ module "vpc" {
 }
 
 locals {
-  public_subnet_id = "${module.vpc.public_subnets[0]}"
+  public_subnet_id  = "${module.vpc.public_subnets[0]}"
   private_subnet_id = "${module.vpc.private_subnets[0]}"
 }
 

@@ -14,11 +14,11 @@ data "template_file" "cloud_config" {
     geth_commit    = "66432f38"
     network_id     = "46781"
     efs_id         = "${var.efs_id}"
-    ethstats   = "${var.ethstats}"
+    ethstats       = "${var.ethstats}"
     bootnode_enode = "${var.bootnode_enode}"
     bootnode_ip    = "${var.bootnode_ip}"
     bootnode_port  = "${var.bootnode_port}"
-    secrets_key     = "${var.secrets_key}"
+    secrets_key    = "${var.secrets_key}"
     name           = "${var.name}"
   }
 }
@@ -32,8 +32,8 @@ module "sealer" {
 
   cloud_config = "${data.template_file.cloud_config.rendered}"
 
-  vpc_id              = "${var.vpc_id}"
-  subnet_id           = "${var.subnet_id}"
+  vpc_id    = "${var.vpc_id}"
+  subnet_id = "${var.subnet_id}"
 
   ingress_rules = [
     {

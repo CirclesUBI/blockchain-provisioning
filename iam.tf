@@ -4,6 +4,7 @@
 
 variable "default_role" {
   type = "string"
+
   default = <<EOF
 {
     "Version": "2012-10-17",
@@ -29,7 +30,7 @@ resource "aws_iam_instance_profile" "sealer1" {
 }
 
 resource "aws_iam_role" "sealer1" {
-  name = "circles-sealer-1"
+  name               = "circles-sealer-1"
   assume_role_policy = "${var.default_role}"
 }
 
@@ -41,7 +42,7 @@ resource "aws_iam_instance_profile" "sealer2" {
 }
 
 resource "aws_iam_role" "sealer2" {
-  name = "circles-sealer-2"
+  name               = "circles-sealer-2"
   assume_role_policy = "${var.default_role}"
 }
 
@@ -53,7 +54,7 @@ resource "aws_iam_instance_profile" "ethstats" {
 }
 
 resource "aws_iam_role" "ethstats" {
-  name = "circles-ethstats"
+  name               = "circles-ethstats"
   assume_role_policy = "${var.default_role}"
 }
 
@@ -65,7 +66,7 @@ resource "aws_iam_instance_profile" "rpc" {
 }
 
 resource "aws_iam_role" "rpc" {
-  name = "circles-rpc"
+  name               = "circles-rpc"
   assume_role_policy = "${var.default_role}"
 }
 
@@ -77,7 +78,7 @@ resource "aws_iam_instance_profile" "bootnode" {
 }
 
 resource "aws_iam_role" "bootnode" {
-  name = "circles-bootnode"
+  name               = "circles-bootnode"
   assume_role_policy = "${var.default_role}"
 }
 

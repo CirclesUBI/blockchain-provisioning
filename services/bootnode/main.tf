@@ -24,8 +24,8 @@ module "bootnode" {
 
   cloud_config = "${data.template_file.cloud_config.rendered}"
 
-  vpc_id              = "${var.vpc_id}"
-  subnet_id           = "${var.subnet_id}"
+  vpc_id    = "${var.vpc_id}"
+  subnet_id = "${var.subnet_id}"
 
   ingress_rules = [
     {
