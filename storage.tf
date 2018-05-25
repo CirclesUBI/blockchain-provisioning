@@ -16,13 +16,13 @@ resource "aws_efs_file_system" "circles" {
 
 resource "aws_efs_mount_target" "circles" {
   file_system_id  = "${aws_efs_file_system.circles.id}"
-  subnet_id       = "${aws_subnet.circles.id}"
+  subnet_id       = "${local.public_subnet_id}"
   security_groups = ["${aws_security_group.circles_efs_mount_target.id}"]
 }
 
 resource "aws_security_group" "circles_efs_mount_target" {
   name   = "circles_efs_mount_target"
-  vpc_id = "${aws_vpc.circles.id}"
+  vpc_id = "${module.vpc.vpc_id}"
 
   ingress {
     from_port   = 2049

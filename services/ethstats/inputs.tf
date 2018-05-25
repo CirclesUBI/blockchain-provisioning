@@ -16,5 +16,5 @@ variable "subnet_id" {
 
 variable "ethstats_port" {
   description = "Port to expose the ethstats service on"
-  default     = 3000
+  default     = 80
 }

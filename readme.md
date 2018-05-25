@@ -8,9 +8,9 @@ Running, but under heavy development. Not production ready. See [todo](#todo)
 
 ## Using the Cluster
 
-- Monitor the current status of the cluster with our ethstats instance at: http://18.184.187.168:3000
+- Monitor the current status of the cluster with our ethstats instance at: [stats.circles.com](http://stats.circles-chain.com)
 - Connect metamask to the RPC node at: http://18.184.227.148:8545
-- Connect your own node to the cluster using the [`gensis.json`](resources/genesis.json) and the bootnode at [35.157.62.211](35.157.62.211)
+- Connect your own node to the cluster using the [`gensis.json`](resources/genesis.json) and the bootnode at [boot.circles-chain.com](http://boot.circles-chain.com)
 
 ## Bringing Up the AWS environment
 
@@ -63,7 +63,7 @@ Running, but under heavy development. Not production ready. See [todo](#todo)
 ### Network
 
 - defined in [network.tf](network.tf)
-- 1 internet visible subnet inside 1 vpc. (eu-central-1a)
+- 1 private & 1 public subnet in eu-central-1
 
 ### Logging
 
@@ -78,6 +78,7 @@ Each service runs on a single burstable t2.micro instance (defined in [services/
 - produces blocks
 - holds private keys
 - running geth
+- private subnet
 
 ### [rpc](services/rpc/main.tf)
 
@@ -85,23 +86,25 @@ Each service runs on a single burstable t2.micro instance (defined in [services/
 - relays blocks to sealer
 - allows interaction with metamask
 - running geth
+- public subnet
 
 ### [bootnode](services/bootnode/main.tf)
 
 - service discovery
 - requires open udp ports to the network
 - running geth
+- public subnet
 
 ### [ethstats](services/ethstats.tf)
 
 - monitoring dashboard for the cluster
 - running [eth-netstats](https://github.com/cubedro/eth-netstats)
+- public subnet
 
 ## TODO
 
 ### Big
 
-- [ ] Segregate sealer nodes into a private subnet
 - [ ] Block explorer
 - [ ] Define staging environment & deployment pipeline
 - [ ] Bootnode should be stateful
@@ -111,6 +114,7 @@ Each service runs on a single burstable t2.micro instance (defined in [services/
 
 ### Small
 
+- [ ] metamask cannot connect to rpc w./ DNS, only w./ IP
 - [ ] Cap size of log file on disk
 - [ ] Unify geth version parameters
 - [ ] Services should not be run as root

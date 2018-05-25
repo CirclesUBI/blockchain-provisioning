@@ -1,5 +1,9 @@
 data "template_file" "cloud_config" {
   template = "${file("${path.module}/cloud-config.yaml")}"
+
+  vars {
+    ethstats_port = "${var.ethstats_port}"
+  }
 }
 
 module "ethstats" {

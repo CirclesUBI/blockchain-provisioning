@@ -1,69 +1,57 @@
 // -----------------------------------------------------------------------------
-// NETWORK
-//
-// Defines a VPC with a single publicly visible subnet
-// see: https://ops.tips/blog/a-pratical-look-at-basic-aws-networking/
+// VPC
 // -----------------------------------------------------------------------------
 
-resource "aws_vpc" "circles" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
+module "vpc" {
+  source = "terraform-aws-modules/vpc/aws"
+  version = "1.32.0"
 
-  tags {
-    Name = "circles-vpc"
-  }
+  name = "circles-vpc"
+  cidr = "10.0.0.0/16"
+
+  azs             = ["${var.availability_zone}"]
+  private_subnets = ["10.0.1.0/24"]
+  public_subnets  = ["10.0.101.0/24"]
+
+  enable_nat_gateway = true
+  enable_vpn_gateway = false
 }
 
-resource "aws_subnet" "circles" {
-  vpc_id                  = "${aws_vpc.circles.id}"
-  cidr_block              = "10.0.0.0/24"
-  availability_zone       = "${var.availability_zone}"
-  map_public_ip_on_launch = true
-
-  tags {
-    Name = "circles-subnet"
-  }
+locals {
+  public_subnet_id = "${module.vpc.public_subnets[0]}"
+  private_subnet_id = "${module.vpc.private_subnets[0]}"
 }
 
-resource "aws_internet_gateway" "circles" {
-  vpc_id = "${aws_vpc.circles.id}"
+// -----------------------------------------------------------------------------
+// DNS
+// -----------------------------------------------------------------------------
 
-  tags {
-    Name = "circles-internet-gateway"
-  }
+resource "aws_route53_zone" "circles" {
+  name = "${var.domain}"
 }
 
-resource "aws_route" "internet_access" {
-  route_table_id         = "${aws_vpc.circles.main_route_table_id}"
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = "${aws_internet_gateway.circles.id}"
+resource "aws_route53_record" "ethstats" {
+  zone_id = "${aws_route53_zone.circles.zone_id}"
+  name    = "stats.${var.domain}"
+  type    = "A"
+  ttl     = "300"
+  records = ["${module.ethstats.public_ip}"]
+}
+
+resource "aws_route53_record" "bootnode" {
+  zone_id = "${aws_route53_zone.circles.zone_id}"
+  name    = "boot.${var.domain}"
+  type    = "A"
+  ttl     = "300"
+  records = ["${module.bootnode.public_ip}"]
 }
 
 // -----------------------------------------------------------------------------
 // Static IP
 // -----------------------------------------------------------------------------
 
-resource "aws_eip" "ethstats" {
-  instance = "${module.ethstats.instance_id}"
-  vpc      = true
-
-  tags {
-    Name = "circles-ethstats"
-  }
-}
-
 resource "aws_eip" "rpc" {
   instance = "${module.rpc.instance_id}"
-  vpc      = true
-
-  tags {
-    Name = "circles-rpc"
-  }
-}
-
-resource "aws_eip" "bootnode" {
-  instance = "${module.bootnode.instance_id}"
   vpc      = true
 
   tags {
