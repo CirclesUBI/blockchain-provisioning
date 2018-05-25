@@ -7,5 +7,5 @@ packages: ['docker']
 runcmd:
   - python3 /get_secret.py --name "circles-ws-secret" --value "ws-secret" --output /secrets/ws-secret
 
-  - service docker start
+  - systemctl start docker.service
   - docker run --publish ${ethstats_port}:3000 --env WS_SECRET=$(cat /secrets/ws-secret) puppeth/ethstats

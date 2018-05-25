@@ -1,0 +1,27 @@
+#cloud-config
+
+packages: ['docker']
+
+write_files:
+  - path: /container/chainspec.json
+    permissions: '0644'
+    encoding: base64
+    content: ${base64encode(chainspec_json)}
+
+  - path: /container/ethstats.json
+    permissions: '0644'
+    encoding: base64
+    content: ${base64encode(ethstats_json)}
+
+  - path: /container/Dockerfile
+    permissions: '0644'
+    encoding: base64
+    content: ${base64encode(dockerfile)}
+
+runcmd:
+  - python3 /get_secret.py --name "circles-ws-secret" --value "ws-secret" --output /secrets/ws-secret
+  - bash -c 'sed -i -e "s/<<-!replaced_during_cloud_init!->>/$(cat /secrets/ws-secret)/g" /container/chainspec.json'
+
+  - systemctl start docker.service
+  - cd /container/ && docker build -t circles-explorer .
+  - docker run -p ${parity_port}:${parity_port} -p ${parity_port}:${parity_port}/udp -p ${explorer_port}:3000 circles-explorer

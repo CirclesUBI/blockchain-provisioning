@@ -30,6 +30,19 @@ module "bootnode" {
   subnet_id             = "${local.public_subnet_id}"
 }
 
+module "explorer" {
+  source = "services/explorer"
+
+  instance_profile_name = "${aws_iam_instance_profile.ethstats.name}"
+  vpc_id                = "${module.vpc.vpc_id}"
+  subnet_id             = "${local.public_subnet_id}"
+
+  ethstats = "${module.ethstats.public_ip}:${module.ethstats.port}"
+  bootnode_enode = "${var.bootnode_enode}"
+  bootnode_port = "${module.bootnode.port}"
+  bootnode_ip   = "${module.bootnode.public_ip}"
+}
+
 module "sealer1" {
   source = "services/sealer"
   name = "sealer-1"

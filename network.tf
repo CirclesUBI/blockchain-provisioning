@@ -46,6 +46,14 @@ resource "aws_route53_record" "bootnode" {
   records = ["${module.bootnode.public_ip}"]
 }
 
+resource "aws_route53_record" "explorer" {
+  zone_id = "${aws_route53_zone.circles.zone_id}"
+  name    = "explorer.${var.domain}"
+  type    = "A"
+  ttl     = "300"
+  records = ["${module.explorer.public_ip}"]
+}
+
 // -----------------------------------------------------------------------------
 // Static IP
 // -----------------------------------------------------------------------------

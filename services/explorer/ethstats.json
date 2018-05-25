@@ -1,0 +1,22 @@
+{
+    "name"              : "node-app",
+    "script"            : "app.js",
+    "log_date_format"   : "YYYY-MM-DD HH:mm Z",
+    "merge_logs"        : false,
+    "watch"             : false,
+    "max_restarts"      : 10,
+    "exec_interpreter"  : "node",
+    "exec_mode"         : "fork_mode",
+    "env":
+    {
+      "NODE_ENV"        : "production",
+      "RPC_HOST"        : "localhost",
+      "RPC_PORT"        : "8545",
+      "LISTENING_PORT"  : "3000",
+      "INSTANCE_NAME"   : "explorer",
+      "CONTACT_DETAILS" : "",
+      "WS_SERVER"       : "${ethstats}",
+      "WS_SECRET"       : "<<-!replaced_during_cloud_init!->>",
+      "VERBOSITY"       : 2
+    }
+  }
