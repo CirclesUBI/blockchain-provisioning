@@ -12,6 +12,10 @@ variable "docker_compose_yaml" {}
 variable "subnet_id" {}
 variable "vpc_id" {}
 
+variable "availability_zone" {}
+
+variable "ip_address" {}
+
 variable "ingress_rules" {
   type = "list"
 }
@@ -39,7 +43,25 @@ resource "aws_cloudformation_stack" "this" {
                 "LoadBalancerNames": [],
                 "VPCZoneIdentifier": ["${var.subnet_id}"],
 
-                "TerminationPolicies": ["OldestLaunchConfiguration", "OldestInstance"]
+                "TerminationPolicies": ["OldestLaunchConfiguration", "OldestInstance"],
+
+                "Tags": [
+                  {
+                    "Key" : "Name",
+                    "Value" : "circles-${var.service_name}",
+                    "PropagateAtLaunch" : "true"
+                  },
+                  {
+                    "Key" : "instance_eni_id",
+                    "Value" : "${aws_network_interface.this.id}",
+                    "PropagateAtLaunch" : "true"
+                  },
+                  {
+                    "Key" : "instance_volume",
+                    "Value" : "${aws_ebs_volume.this.id}",
+                    "PropagateAtLaunch" : "true"
+                  }
+                ]
             },
             "UpdatePolicy": {
                 "AutoScalingRollingUpdate": {
@@ -78,6 +100,37 @@ resource "aws_launch_configuration" "this" {
   lifecycle {
     create_before_destroy = true
   }
+}
+
+# ----------------------------------------------------------------------------------------------
+# Storage
+
+resource "aws_ebs_volume" "this" {
+  availability_zone = "${var.availability_zone}"
+  size              = 100
+  type              = "io1"
+  iops              = 1000
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  tags {
+    # include the subnet id to force terraform to recognise the dependency on the subnet
+    # see: https://github.com/terraform-providers/terraform-provider-aws/issues/655
+    Subnet = "${var.subnet_id}"
+
+    Name = "circles-${var.service_name}"
+  }
+}
+
+# ----------------------------------------------------------------------------------------------
+# Static IP
+
+resource "aws_network_interface" "this" {
+  subnet_id       = "${var.subnet_id}"
+  private_ips     = ["${var.ip_address}"]
+  security_groups = ["${aws_security_group.this.id}"]
 }
 
 # ----------------------------------------------------------------------------------------------
@@ -177,11 +230,11 @@ EOF
 }
 
 # ----------------------------------------------------------------------------------------------
-# Security Groups
+# IAM
 
 resource "aws_security_group" "this" {
-  name        = "${var.service_name}"
-  description = "circles-${var.service_name} security group"
+  name        = "circles-${var.service_name}"
+  description = "circles-${var.service_name}"
   vpc_id      = "${var.vpc_id}"
 }
 

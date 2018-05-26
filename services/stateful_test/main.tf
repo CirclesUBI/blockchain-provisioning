@@ -1,6 +1,8 @@
 variable "vpc_id" {}
 variable "subnet_id" {}
 
+variable "availability_zone" {}
+
 locals {
   service_name = "stateful-test"
 }
@@ -19,12 +21,15 @@ data "template_file" "docker_compose_yaml" {
 }
 
 module "this" {
-  source              = "../../modules/stateful_service"
+  source = "../../modules/stateful_service"
+
   service_name        = "${local.service_name}"
   dockerfile          = "${file("${path.module}/Dockerfile")}"
   docker_compose_yaml = "${data.template_file.docker_compose_yaml.rendered}"
   subnet_id           = "${var.subnet_id}"
   vpc_id              = "${var.vpc_id}"
+  availability_zone   = "${var.availability_zone}"
+  ip_address          = "10.0.101.50"
 
   ingress_rules = [
     {

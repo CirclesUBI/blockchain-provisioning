@@ -20,9 +20,10 @@ resource "aws_key_pair" "david" {
 }
 
 module "stateful_test" {
-  source    = "services/stateful_test"
-  subnet_id = "${local.public_subnet_id}"
-  vpc_id    = "${module.vpc.vpc_id}"
+  source            = "services/stateful_test"
+  subnet_id         = "${local.public_subnet_id}"
+  vpc_id            = "${module.vpc.vpc_id}"
+  availability_zone = "${var.availability_zone}"
 }
 
 module "ethstats" {

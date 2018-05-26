@@ -24,5 +24,5 @@ runcmd:
   - service awslogs start
 
   - python3 -m pip install docker-compose
-  - sudo -u ec2-user bash -c 'cd /service && /usr/local/bin/docker-compose up -d'
+  - sudo -u ec2-user bash -c 'cd /service && /usr/local/bin/docker-compose up -d --no-color'
 

@@ -45,7 +45,7 @@ Running, but under heavy development. Not production ready. See [todo](#todo)
 
 - Directories in EFS can only be created by mounting an instance and running `mkdir`.
 - Nodes share the same EFS volume but only mount subdirectories. Subdirectories cannot be mounted until they actually exist.
-- EFS volume needs `/sealer` and `/rpc` directories (should be empty)
+- EFS volume needs `/sealer1`, `/sealer2`, and `/rpc` directories (should be empty)
 
 ## Environment / Topology
 
