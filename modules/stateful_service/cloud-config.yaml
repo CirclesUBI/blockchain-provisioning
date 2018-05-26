@@ -1,0 +1,27 @@
+#cloud-config
+
+packages: ['awslogs', 'python36']
+
+write_files:
+  - path: /service/Dockerfile
+    permissions: '0644'
+    encoding: base64
+    content: ${base64encode(dockerfile)}
+
+  - path: /service/docker-compose.yaml
+    permissions: '0644'
+    encoding: base64
+    content: ${base64encode(docker_compose_yaml)}
+
+  - path: /etc/awslogs/awslogs.conf
+    permissions: '0644'
+    encoding: base64
+    content: ${base64encode(awslogs_conf)}
+
+runcmd:
+  - service awslogs start
+
+  - python3 -m pip install docker-compose
+  - sudo -u ec2-user bash -c 'cd /service && /usr/local/bin/docker-compose up'
+  - cd /service && /usr/local/bin/docker-compose up
+
