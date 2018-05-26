@@ -3,10 +3,10 @@
 packages: ['awslogs', 'python36']
 
 write_files:
-  - path: /service/Dockerfile
+  - path: /write_extra_files.py
     permissions: '0644'
     encoding: base64
-    content: ${base64encode(dockerfile)}
+    content: ${base64encode(write_extra_files_py)}
 
   - path: /service/docker-compose.yaml
     permissions: '0644'
@@ -22,6 +22,8 @@ runcmd:
   - bash -c 'sed -i -e "s/<<!instance_id!>>/$(curl http://169.254.169.254/latest/meta-data/instance-id)/g" /etc/awslogs/awslogs.conf'
   - bash -c 'sed -i -e "s/us-east-1/eu-central-1/g" /etc/awslogs/awscli.conf'
   - service awslogs start
+
+  - python3 /write_extra_files.py ${base64encode(extra_files)}
 
   - python3 -m pip install docker-compose
   - sudo -u ec2-user bash -c 'cd /service && /usr/local/bin/docker-compose up -d --no-color'

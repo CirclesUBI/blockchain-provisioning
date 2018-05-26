@@ -4,25 +4,40 @@
 # ----------------------------------------------------------------------------------------------
 # inputs
 
-variable "service_name" {}
+# Networking
 
-variable "dockerfile" {}
-
-variable "docker_compose_yaml" {}
 variable "subnet_id" {}
 variable "vpc_id" {}
 
 variable "availability_zone" {}
 
-variable "ip_address" {}
+variable "ip_address" {
+  description = "static and persistant ipv4 address. An ENI for this ip address will be created and attached"
+}
+
+# Service Definitions
+variable "service_name" {}
+
+variable "docker_compose_yaml" {
+  description = "the contents of the docker-compose.yaml"
+}
 
 variable "ingress_rules" {
-  type = "list"
+  type        = "list"
+  default     = []
+  description = "ingress rules to be added to the instance security group"
+}
+
+variable "extra_files" {
+  type        = "list"
+  default     = []
+  description = "list of specifiers for host files. specifiers need filename and content. content should be base64 encoded. contents will be written into the same directory as the docker-compose file"
 }
 
 # ----------------------------------------------------------------------------------------------
 # ASG
 
+# Define the ASG using cloudformation as UpdatePolicy is not available through terraform
 resource "aws_cloudformation_stack" "this" {
   name = "circles-${var.service_name}-asg"
 
@@ -93,7 +108,7 @@ resource "aws_launch_configuration" "this" {
   security_groups             = ["${aws_security_group.this.id}"]
   associate_public_ip_address = "true"
 
-  user_data = "${data.template_file.cloud_config.rendered}"
+  user_data = "${data.template_cloudinit_config.this.rendered}"
 
   key_name = "david"
 
@@ -116,10 +131,6 @@ resource "aws_ebs_volume" "this" {
   }
 
   tags {
-    # include the subnet id to force terraform to recognise the dependency on the subnet
-    # see: https://github.com/terraform-providers/terraform-provider-aws/issues/655
-    Subnet = "${var.subnet_id}"
-
     Name = "circles-${var.service_name}"
   }
 }
@@ -131,6 +142,10 @@ resource "aws_network_interface" "this" {
   subnet_id       = "${var.subnet_id}"
   private_ips     = ["${var.ip_address}"]
   security_groups = ["${aws_security_group.this.id}"]
+
+  tags {
+    Name = "circles-${var.service_name}"
+  }
 }
 
 # ----------------------------------------------------------------------------------------------
@@ -170,13 +185,30 @@ data "template_file" "awslogs_conf" {
   }
 }
 
+locals {
+  extra_files_json = {
+    extra_files = "${var.extra_files}"
+  }
+}
+
 data "template_file" "cloud_config" {
   template = "${file("${path.module}/cloud-config.yaml")}"
 
   vars {
-    docker_compose_yaml = "${var.docker_compose_yaml}"
-    dockerfile          = "${var.dockerfile}"
-    awslogs_conf        = "${data.template_file.awslogs_conf.rendered}"
+    docker_compose_yaml  = "${var.docker_compose_yaml}"
+    awslogs_conf         = "${data.template_file.awslogs_conf.rendered}"
+    write_extra_files_py = "${file("${path.module}/write_extra_files.py")}"
+    extra_files          = "${jsonencode("${local.extra_files_json}")}"
+  }
+}
+
+data "template_cloudinit_config" "this" {
+  gzip          = true
+  base64_encode = true
+
+  part {
+    content_type = "text/cloud-config"
+    content      = "${data.template_file.cloud_config.rendered}"
   }
 }
 

@@ -24,12 +24,26 @@ module "this" {
   source = "../../modules/stateful_service"
 
   service_name        = "${local.service_name}"
-  dockerfile          = "${file("${path.module}/Dockerfile")}"
   docker_compose_yaml = "${data.template_file.docker_compose_yaml.rendered}"
   subnet_id           = "${var.subnet_id}"
   vpc_id              = "${var.vpc_id}"
   availability_zone   = "${var.availability_zone}"
   ip_address          = "10.0.101.50"
+
+  extra_files = [
+    {
+      filename = "Dockerfile"
+      content  = "${base64encode("${file("${path.module}/Dockerfile")}")}"
+    },
+    {
+      filename = "genesis.json"
+      content  = "${base64encode("${file("${path.root}/resources/genesis.json")}")}"
+    },
+    {
+      filename = "get_secret.py"
+      content  = "${base64encode("${file("${path.root}/resources/get_secret.py")}")}"
+    },
+  ]
 
   ingress_rules = [
     {
