@@ -110,6 +110,10 @@ data "template_file" "awslogs_conf" {
 
   vars {
     service_name = "${var.service_name}"
+    dmesg        = "/var/log/dmesg"
+    messages     = "/var/log/messages"
+    cloud_init   = "/var/log/cloud-init-output.log"
+    docker       = "/var/log/docker"
   }
 }
 
