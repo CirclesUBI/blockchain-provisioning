@@ -120,7 +120,6 @@ data "template_file" "cloud_config" {
     docker_compose_yaml = "${var.docker_compose_yaml}"
     dockerfile          = "${var.dockerfile}"
     awslogs_conf        = "${data.template_file.awslogs_conf.rendered}"
-    awscli_conf         = "${file("${path.module}/awscli.conf")}"
   }
 }
 
