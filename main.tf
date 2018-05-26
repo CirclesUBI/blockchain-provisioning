@@ -20,21 +20,9 @@ resource "aws_key_pair" "david" {
 }
 
 module "stateful_test" {
-  source              = "modules/stateful_service"
-  service_name        = "stateful_test"
-  dockerfile          = "${file("${path.module}/stateful_test//Dockerfile")}"
-  docker_compose_yaml = "${file("${path.module}/stateful_test/docker-compose.yaml")}"
-  subnet_id           = "${local.public_subnet_id}"
-  vpc_id              = "${module.vpc.vpc_id}"
-
-  ingress_rules = [
-    {
-      from_port   = "22"
-      to_port     = "22"
-      protocol    = "TCP"
-      description = "geth"
-    },
-  ]
+  source    = "services/stateful_test"
+  subnet_id = "${local.public_subnet_id}"
+  vpc_id    = "${module.vpc.vpc_id}"
 }
 
 module "ethstats" {

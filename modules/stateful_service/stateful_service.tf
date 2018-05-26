@@ -19,22 +19,46 @@ variable "ingress_rules" {
 # ----------------------------------------------------------------------------------------------
 # ASG
 
-resource "aws_autoscaling_group" "this" {
-  name = "circles-${var.service_name}"
+resource "aws_cloudformation_stack" "this" {
+  name = "circles-${var.service_name}-asg"
 
-  vpc_zone_identifier = ["${var.subnet_id}"]
+  template_body = <<EOF
+{
+    "Resources": {
+        "asg": {
+            "Type": "AWS::AutoScaling::AutoScalingGroup",
+            "Properties": {
+                "LaunchConfigurationName": "${aws_launch_configuration.this.name}",
 
-  launch_configuration = "${aws_launch_configuration.this.name}"
+                "MaxSize": "1",
+                "MinSize": "0",
+                "DesiredCapacity": "1",
 
-  desired_capacity = "1"
-  max_size         = "1"
-  min_size         = "1"
+                "HealthCheckType": "EC2",
 
-  tag {
-    key                 = "Name"
-    value               = "circles-${var.service_name}"
-    propagate_at_launch = true
-  }
+                "LoadBalancerNames": [],
+                "VPCZoneIdentifier": ["${var.subnet_id}"],
+
+                "TerminationPolicies": ["OldestLaunchConfiguration", "OldestInstance"]
+            },
+            "UpdatePolicy": {
+                "AutoScalingRollingUpdate": {
+                    "MinInstancesInService": "0",
+                    "MaxBatchSize": "1",
+                    "PauseTime": "PT0S",
+                    "SuspendProcesses" : [
+                      "HealthCheck",
+                      "ReplaceUnhealthy",
+                      "AZRebalance",
+                      "AlarmNotification",
+                      "ScheduledActions"
+                    ]
+                }
+            }
+        }
+    }
+}
+EOF
 }
 
 resource "aws_launch_configuration" "this" {
@@ -85,7 +109,7 @@ data "template_file" "awslogs_conf" {
   template = "${file("${path.module}/awslogs.conf")}"
 
   vars {
-    log_group_name = "circles-${var.service_name}"
+    service_name = "${var.service_name}"
   }
 }
 
@@ -96,6 +120,7 @@ data "template_file" "cloud_config" {
     docker_compose_yaml = "${var.docker_compose_yaml}"
     dockerfile          = "${var.dockerfile}"
     awslogs_conf        = "${data.template_file.awslogs_conf.rendered}"
+    awscli_conf         = "${file("${path.module}/awscli.conf")}"
   }
 }
 

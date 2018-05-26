@@ -18,10 +18,15 @@ write_files:
     encoding: base64
     content: ${base64encode(awslogs_conf)}
 
+  - path: /etc/awslogs/awscli.conf
+    permissions: '0644'
+    encoding: base64
+    content: ${base64encode(awscli_conf)}
+
 runcmd:
+  - bash -c 'sed -i -e "s/<<!instance_id!>>/$(curl http://169.254.169.254/latest/meta-data/instance-id)/g" /etc/awslogs/awslogs.conf'
   - service awslogs start
 
   - python3 -m pip install docker-compose
-  - sudo -u ec2-user bash -c 'cd /service && /usr/local/bin/docker-compose up'
-  - cd /service && /usr/local/bin/docker-compose up
+  - sudo -u ec2-user bash -c 'cd /service && /usr/local/bin/docker-compose up -d'
 
