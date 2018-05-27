@@ -45,57 +45,57 @@ resource "aws_cloudformation_stack" "this" {
 
   template_body = <<EOF
 {
-    "Resources": {
-        "asg": {
-            "Type": "AWS::AutoScaling::AutoScalingGroup",
-            "Properties": {
-                "LaunchConfigurationName": "${aws_launch_configuration.this.name}",
+  "Resources": {
+    "AutoScalingGroup": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Properties": {
+        "LaunchConfigurationName": "${aws_launch_configuration.this.name}",
 
-                "MaxSize": "1",
-                "MinSize": "0",
-                "DesiredCapacity": "1",
+        "MaxSize": "1",
+        "MinSize": "0",
+        "DesiredCapacity": "1",
 
-                "HealthCheckType": "EC2",
+        "HealthCheckType": "EC2",
 
-                "LoadBalancerNames": [],
-                "VPCZoneIdentifier": ["${var.subnet_id}"],
+        "LoadBalancerNames": [],
+        "VPCZoneIdentifier": ["${var.subnet_id}"],
 
-                "TerminationPolicies": ["OldestLaunchConfiguration", "OldestInstance"],
+        "TerminationPolicies": ["OldestLaunchConfiguration", "OldestInstance"],
 
-                "Tags": [
-                  {
-                    "Key" : "Name",
-                    "Value" : "circles-${var.service_name}",
-                    "PropagateAtLaunch" : "true"
-                  },
-                  {
-                    "Key" : "instance_eni_id",
-                    "Value" : "${aws_network_interface.this.id}",
-                    "PropagateAtLaunch" : "true"
-                  },
-                  {
-                    "Key" : "instance_volume",
-                    "Value" : "${aws_ebs_volume.this.id}",
-                    "PropagateAtLaunch" : "true"
-                  }
-                ]
-            },
-            "UpdatePolicy": {
-                "AutoScalingRollingUpdate": {
-                    "MinInstancesInService": "0",
-                    "MaxBatchSize": "1",
-                    "PauseTime": "PT0S",
-                    "SuspendProcesses" : [
-                      "HealthCheck",
-                      "ReplaceUnhealthy",
-                      "AZRebalance",
-                      "AlarmNotification",
-                      "ScheduledActions"
-                    ]
-                }
-            }
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "circles-${var.service_name}",
+            "PropagateAtLaunch": "true"
+          },
+          {
+            "Key": "instance_eni_id",
+            "Value": "${aws_network_interface.this.id}",
+            "PropagateAtLaunch": "true"
+          },
+          {
+            "Key": "instance_volume",
+            "Value": "${aws_ebs_volume.this.id}",
+            "PropagateAtLaunch": "true"
+          }
+        ]
+      },
+      "UpdatePolicy": {
+        "AutoScalingRollingUpdate": {
+          "MinInstancesInService": "0",
+          "MaxBatchSize": "1",
+          "PauseTime": "PT0S",
+          "SuspendProcesses": [
+            "HealthCheck",
+            "ReplaceUnhealthy",
+            "AZRebalance",
+            "AlarmNotification",
+            "ScheduledActions"
+          ]
         }
+      }
     }
+  }
 }
 EOF
 }
@@ -197,10 +197,14 @@ data "template_file" "cloud_config" {
   template = "${file("${path.module}/cloud-config.yaml")}"
 
   vars {
-    docker_compose_yaml  = "${var.docker_compose_yaml}"
-    awslogs_conf         = "${data.template_file.awslogs_conf.rendered}"
+    awslogs_conf        = "${data.template_file.awslogs_conf.rendered}"
+    docker_compose_yaml = "${var.docker_compose_yaml}"
+
     write_extra_files_py = "${file("${path.module}/write_extra_files.py")}"
     extra_files          = "${jsonencode("${local.extra_files_json}")}"
+
+    eni_id    = "${aws_network_interface.this.id}"
+    volume_id = "${aws_ebs_volume.this.id}"
   }
 }
 
@@ -262,6 +266,18 @@ resource "aws_iam_role_policy" "cloudwatch_logs" {
             "Resource": [
                 "arn:aws:logs:*:*:*"
             ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:AttachNetworkInterface",
+                "ec2:AttachVolume",
+                "ec2:DescribeNetworkInterfaces",
+                "ec2:DescribeVolumes"
+            ],
+            "Resource": [
+                "*"
+            ]
         }
     ]
 }
@@ -269,7 +285,7 @@ EOF
 }
 
 # ----------------------------------------------------------------------------------------------
-# IAM
+# Security Groups
 
 resource "aws_security_group" "this" {
   name        = "circles-${var.service_name}"

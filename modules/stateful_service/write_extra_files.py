@@ -12,22 +12,18 @@ from os import path, makedirs
 def write_files(prefix, extra_files):
     decoded = json.loads(base64.decodebytes(extra_files.encode('ascii')))
 
-    print(f"write_files: decoded_json: {decoded}")
-
     for specifier in decoded['extra_files']:
         output_path = path.join(prefix, specifier['filename'])
         with open(output_path, "w") as file:
             decoded_file = base64.decodebytes(
                 specifier['content'].encode('ascii')).decode('ascii')
             file.write(decoded_file)
-            print(f"write_files: wrote:\n ${decoded_file}\n to: {output_path}")
+            print(f"write_extra_files: wrote: {output_path}")
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('extra_files', action="store")
     args = parser.parse_args()
-
-    print(f"write_files: processing: {args.extra_files}")
 
     write_files('./service', args.extra_files)

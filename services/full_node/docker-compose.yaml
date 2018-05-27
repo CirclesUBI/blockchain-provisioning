@@ -3,7 +3,7 @@ services:
   rpc:
     build: .
     volumes:
-      - /chain:/chain
+      - /data:/chain
       - ./genesis.json:/genesis.json:ro
     ports:
       - ${port}:${port}
