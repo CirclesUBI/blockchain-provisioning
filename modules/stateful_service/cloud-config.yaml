@@ -3,6 +3,11 @@
 packages: ['awslogs', 'python36']
 
 write_files:
+  - path: /attach_resources.py
+    permissions: '0644'
+    encoding: base64
+    content: ${base64encode(attach_resources_py)}
+
   - path: /write_extra_files.py
     permissions: '0644'
     encoding: base64
@@ -20,19 +25,16 @@ write_files:
 
 runcmd:
   # configure & start logs
-  - bash -c 'sed -i -e "s/<<!instance_id!>>/$(curl http://169.254.169.254/latest/meta-data/instance-id)/g" /etc/awslogs/awslogs.conf'
+  - bash -c 'sed -i -e "s/<<!instance_id!>>/$(curl -s http://169.254.169.254/latest/meta-data/instance-id)/g" /etc/awslogs/awslogs.conf'
   - bash -c 'sed -i -e "s/us-east-1/eu-central-1/g" /etc/awslogs/awscli.conf'
   - service awslogs start
 
+  # attach resources
+  - python3 -m pip install pyasn1 boto3 retry
+  - python3 /attach_resources.py --instance_id="$(curl -s http://169.254.169.254/latest/meta-data/instance-id)" --interface_id=${eni_id} --volume_id=${volume_id}
 
-  # attach ENI
-  - aws ec2 attach-network-interface --network-interface-id ${eni_id} --instance-id $(curl http://169.254.169.254/latest/meta-data/instance-id) --region eu-central-1 --device-index 1
-
-  # attach EBS
-  - aws ec2 attach-volume --volume-id ${volume_id} --instance-id $(curl http://169.254.169.254/latest/meta-data/instance-id) --region eu-central-1 --device /dev/xvdb
-  - sleep 15s
-  - blkid -L data; FILESYSTEM_EXISTS=$?
-  - if [[ $FILESYSTEM_EXISTS -ne 0 ]]; then mkfs -t ext4 -L data /dev/xvdb; fi
+  # format EBS if required
+  - blkid -L data; FILESYSTEM_EXISTS=$?; if [[ $FILESYSTEM_EXISTS -ne 0 ]]; then echo "FORMATTING EBS VOLUME" && mkfs -t ext4 -L data /dev/xvdb; fi
 
   # mount EBS
   - mkdir -p /data
@@ -40,7 +42,7 @@ runcmd:
   - chmod 777 /data
 
   # check data persistance
-  - echo "$(date +%Y:%m:%d-%H:%M:%S) -- $(curl http://169.254.169.254/latest/meta-data/instance-id)" >> /data/mounted_in.txt
+  - echo "$(date +%Y:%m:%d-%H:%M:%S) -- $(curl -s http://169.254.169.254/latest/meta-data/instance-id)" >> /data/mounted_in.txt
   - echo "EBS volume mount history:"
   - tail -50 /data/mounted_in.txt
 

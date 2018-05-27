@@ -71,10 +71,6 @@ module "this" {
       content  = "${base64encode("${data.template_file.dockerfile.rendered}")}"
     },
     {
-      filename = "genesis.json"
-      content  = "${base64encode("${file("${path.root}/resources/genesis.json")}")}"
-    },
-    {
       filename = "get_secret.py"
       content  = "${base64encode("${file("${path.root}/resources/get_secret.py")}")}"
     },

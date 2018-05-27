@@ -203,6 +203,8 @@ data "template_file" "cloud_config" {
     write_extra_files_py = "${file("${path.module}/write_extra_files.py")}"
     extra_files          = "${jsonencode("${local.extra_files_json}")}"
 
+    attach_resources_py = "${file("${path.module}/attach_resources.py")}"
+
     eni_id    = "${aws_network_interface.this.id}"
     volume_id = "${aws_ebs_volume.this.id}"
   }
