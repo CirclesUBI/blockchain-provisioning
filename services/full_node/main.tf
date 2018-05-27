@@ -63,7 +63,7 @@ module "this" {
   vpc_id              = "${var.vpc_id}"
   availability_zone   = "${var.availability_zone}"
   ip_address          = "10.0.101.50"
-  iam_policies        = ["${aws_iam_policy.ethstats_ws_secret.arn}"]
+  iam_policy          = "${aws_iam_policy.ethstats_ws_secret.arn}"
 
   extra_files = [
     {

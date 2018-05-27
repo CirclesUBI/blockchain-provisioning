@@ -34,10 +34,7 @@ variable "extra_files" {
   description = "list of specifiers for host files. specifiers need filename and content. content should be base64 encoded. contents will be written into the same directory as the docker-compose file"
 }
 
-variable "iam_policies" {
-  type    = "list"
-  default = []
-}
+variable "iam_policy" {}
 
 # ----------------------------------------------------------------------------------------------
 # ASG
@@ -242,10 +239,8 @@ resource "aws_iam_role" "this" {
 }
 
 resource "aws_iam_role_policy_attachment" "user_provided" {
-  # count      = "${length("${var.iam_policies}")}"
-  count      = "1"
   role       = "${aws_iam_role.this.name}"
-  policy_arn = "${element(var.iam_policies, count.index)}"
+  policy_arn = "${var.iam_policy}"
 }
 
 resource "aws_iam_role_policy" "cloudwatch_logs" {
