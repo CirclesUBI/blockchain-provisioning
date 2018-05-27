@@ -1,0 +1,26 @@
+version: '3'
+services:
+  init-chain:
+    image: ethereum/client-go
+    command: --init /genesis.json --datadir /chain
+    volumes:
+      - /chain:/chain
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: "eu-central-1"
+        awslogs-group: "${init_chain_log_group}"
+  rpc:
+    build:
+      context: .
+      args:
+        ethstats: ${ethstats}
+        bootnode: ${ethstats}
+        network_id: ${network_id}
+    volumes:
+      - /chain:/chain
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: "eu-central-1"
+        awslogs-group: "${fullnode_log_group}"

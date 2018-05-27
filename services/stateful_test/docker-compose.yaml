@@ -1,9 +1,0 @@
-version: '3'
-services:
-  ping:
-    build: .
-    logging:
-      driver: awslogs
-      options:
-        awslogs-region: "eu-central-1"
-        awslogs-group: "${log_group}"

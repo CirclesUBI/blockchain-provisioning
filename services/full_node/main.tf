@@ -3,12 +3,21 @@ variable "subnet_id" {}
 
 variable "availability_zone" {}
 
+variable "network_id" {}
+variable "ethstats" {}
+variable "bootnode" {}
+
 locals {
-  service_name = "stateful-test"
+  service_name = "full-node"
 }
 
-resource "aws_cloudwatch_log_group" "this" {
-  name              = "circles-${local.service_name}"
+resource "aws_cloudwatch_log_group" "init_chain" {
+  name              = "circles-${local.service_name}-init-chain"
+  retention_in_days = "60"
+}
+
+resource "aws_cloudwatch_log_group" "fullnode" {
+  name              = "circles-${local.service_name}-fullnode"
   retention_in_days = "60"
 }
 
@@ -16,7 +25,11 @@ data "template_file" "docker_compose_yaml" {
   template = "${file("${path.module}/docker-compose.yaml")}"
 
   vars {
-    log_group = "${aws_cloudwatch_log_group.this.name}"
+    init_chain_log_group = "${aws_cloudwatch_log_group.init_chain.name}"
+    fullnode_log_group   = "${aws_cloudwatch_log_group.fullnode.name}"
+    network_id           = "${var.network_id}"
+    ethstats             = "${var.ethstats}"
+    bootnode             = "${var.bootnode}"
   }
 }
 

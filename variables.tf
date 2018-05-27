@@ -7,3 +7,7 @@ variable "domain" {
   description = "Which domain should the route53 records be created for"
   default     = "circles-chain.com"
 }
+
+variable "network_id" {
+  default = "46781"
+}
