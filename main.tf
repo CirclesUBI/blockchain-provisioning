@@ -105,3 +105,7 @@ output "ethstats" {
 output "rpc" {
   value = "http://${aws_eip.rpc.public_ip}:${module.rpc.port}"
 }
+
+output "network_id" {
+  value = "${var.network_id}"
+}
