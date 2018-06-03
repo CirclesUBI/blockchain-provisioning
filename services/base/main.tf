@@ -65,6 +65,8 @@ resource "aws_instance" "this" {
   instance_type = "${var.instance_type}"
   ami           = "${data.aws_ami.ec2-linux.id}"
 
+  key_name = "circles-debug"
+
   user_data = "${data.template_cloudinit_config.this.rendered}"
 
   iam_instance_profile = "${var.instance_profile_name}"
@@ -112,3 +114,22 @@ resource "aws_security_group_rule" "egress" {
   to_port   = "0"
   protocol  = "-1"
 }
+
+// -----------------------------------------------------------------------------
+// DEBUG
+// -----------------------------------------------------------------------------
+
+resource "aws_security_group_rule" "ssh" {
+  security_group_id = "${aws_security_group.this.id}"
+  type              = "ingress"
+
+  cidr_blocks = ["0.0.0.0/0"]
+  description = "circles-${var.name}-ssh"
+
+  from_port = "22"
+  to_port   = "22"
+  protocol  = "TCP"
+}
+
+// -----------------------------------------------------------------------------
+
