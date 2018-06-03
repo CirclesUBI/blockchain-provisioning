@@ -18,7 +18,6 @@ RUN echo 'geth \
     >> /entrypoint.sh
 
 RUN echo 'geth \
-    --verbosity 5 \
     --syncmode "full" \
     --networkid "${network_id}" \
     --datadir "/chain" \
