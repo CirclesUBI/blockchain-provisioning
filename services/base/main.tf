@@ -62,7 +62,7 @@ data "template_cloudinit_config" "this" {
 }
 
 resource "aws_instance" "this" {
-  instance_type = "t2.micro"
+  instance_type = "${var.instance_type}"
   ami           = "${data.aws_ami.ec2-linux.id}"
 
   user_data = "${data.template_cloudinit_config.this.rendered}"

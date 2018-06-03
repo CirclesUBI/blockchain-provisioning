@@ -28,6 +28,8 @@ module "sealer" {
 
   name = "${var.name}"
 
+  instance_type = "t2.medium"
+
   instance_profile_name = "${var.instance_profile_name}"
 
   cloud_config = "${data.template_file.cloud_config.rendered}"

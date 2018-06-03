@@ -31,3 +31,10 @@ variable "ingress_rules" {
   description = "List of ingress rules to create"
   default     = []
 }
+
+// Machine Type
+
+variable "instance_type" {
+  description = "Which instance type should the service be run on"
+  default     = "t2.micro"
+}
