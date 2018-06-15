@@ -32,9 +32,6 @@ module "full_node" {
   subnet_id         = "${local.public_subnet_id}"
   vpc_id            = "${module.vpc.vpc_id}"
   availability_zone = "${var.availability_zone}"
-  network_id        = "${var.network_id}"
-  ethstats          = "${module.ethstats.public_ip}:${module.ethstats.port}"
-  bootnode          = "enode://${var.bootnode_enode}@[${module.bootnode.public_ip}]:${module.bootnode.port}"
 }
 
 module "ethstats" {

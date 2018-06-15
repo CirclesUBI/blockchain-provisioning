@@ -4,26 +4,18 @@
 # ----------------------------------------------------------------------------------------------
 # inputs
 
-# Networking
+variable "service_name" {}
 
-variable "subnet_id" {}
 variable "vpc_id" {}
-
+variable "subnet_id" {}
 variable "availability_zone" {}
-
-variable "instance_type" {
-  default = "t2.micro"
-}
 
 variable "ip_address" {
   description = "static and persistant ipv4 address. An ENI for this ip address will be created and attached"
 }
 
-# Service Definitions
-variable "service_name" {}
-
-variable "docker_compose_yaml" {
-  description = "the contents of the docker-compose.yaml"
+variable "instance_type" {
+  default = "t2.micro"
 }
 
 variable "ingress_rules" {
@@ -31,14 +23,6 @@ variable "ingress_rules" {
   default     = []
   description = "ingress rules to be added to the instance security group"
 }
-
-variable "extra_files" {
-  type        = "list"
-  default     = []
-  description = "list of specifiers for host files. specifiers need filename and content. content should be base64 encoded. contents will be written into the same directory as the docker-compose file"
-}
-
-variable "iam_policy" {}
 
 # ----------------------------------------------------------------------------------------------
 # ASG
@@ -114,7 +98,7 @@ resource "aws_launch_configuration" "this" {
   security_groups             = ["${aws_security_group.this.id}"]
   associate_public_ip_address = "true"
 
-  user_data = "${data.template_cloudinit_config.this.rendered}"
+  user_data = "${data.template_file.cloud_config.rendered}"
 
   key_name = "david"
 
@@ -191,36 +175,14 @@ data "template_file" "awslogs_conf" {
   }
 }
 
-locals {
-  extra_files_json = {
-    extra_files = "${var.extra_files}"
-  }
-}
-
 data "template_file" "cloud_config" {
   template = "${file("${path.module}/cloud-config.yaml")}"
 
   vars {
     awslogs_conf        = "${data.template_file.awslogs_conf.rendered}"
-    docker_compose_yaml = "${var.docker_compose_yaml}"
-
-    write_extra_files_py = "${file("${path.module}/write_extra_files.py")}"
-    extra_files          = "${jsonencode("${local.extra_files_json}")}"
-
     attach_resources_py = "${file("${path.module}/attach_resources.py")}"
-
-    eni_id    = "${aws_network_interface.this.id}"
-    volume_id = "${aws_ebs_volume.this.id}"
-  }
-}
-
-data "template_cloudinit_config" "this" {
-  gzip          = true
-  base64_encode = true
-
-  part {
-    content_type = "text/cloud-config"
-    content      = "${data.template_file.cloud_config.rendered}"
+    eni_id              = "${aws_network_interface.this.id}"
+    volume_id           = "${aws_ebs_volume.this.id}"
   }
 }
 
@@ -246,11 +208,6 @@ data "aws_iam_policy_document" "instance_assume_role_policy" {
 resource "aws_iam_role" "this" {
   name               = "circles-${var.service_name}"
   assume_role_policy = "${data.aws_iam_policy_document.instance_assume_role_policy.json}"
-}
-
-resource "aws_iam_role_policy_attachment" "user_provided" {
-  role       = "${aws_iam_role.this.name}"
-  policy_arn = "${var.iam_policy}"
 }
 
 resource "aws_iam_role_policy" "logs" {

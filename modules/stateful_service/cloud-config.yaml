@@ -8,16 +8,6 @@ write_files:
     encoding: base64
     content: ${base64encode(attach_resources_py)}
 
-  - path: /write_extra_files.py
-    permissions: '0644'
-    encoding: base64
-    content: ${base64encode(write_extra_files_py)}
-
-  - path: /service/docker-compose.yaml
-    permissions: '0644'
-    encoding: base64
-    content: ${base64encode(docker_compose_yaml)}
-
   - path: /etc/awslogs/awslogs.conf
     permissions: '0644'
     encoding: base64
@@ -46,7 +36,4 @@ runcmd:
   - echo "EBS volume mount history:"
   - tail -50 /data/mounted_in.txt
 
-  # deploy service
-  - python3 /write_extra_files.py ${base64encode(extra_files)}
-  - python3 -m pip install docker-compose
-  - sudo -u ec2-user bash -c 'cd /service && /usr/local/bin/docker-compose up -d --no-color'
+  # join ecs cluster
