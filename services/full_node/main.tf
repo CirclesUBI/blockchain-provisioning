@@ -64,6 +64,7 @@ module "this" {
   availability_zone   = "${var.availability_zone}"
   ip_address          = "10.0.101.50"
   iam_policy          = "${aws_iam_policy.ethstats_ws_secret.arn}"
+  instance_type       = "t2.medium"
 
   extra_files = [
     {
