@@ -41,4 +41,6 @@ module "full_node_instance" {
   vpc_id            = "${var.vpc_id}"
   availability_zone = "${var.availability_zone}"
   ip_address        = "10.0.101.50"
+
+  ecs_cluster = "${var.ecs_cluster}"
 }

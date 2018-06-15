@@ -6,6 +6,8 @@
 
 variable "service_name" {}
 
+variable "ecs_cluster" {}
+
 variable "vpc_id" {}
 variable "subnet_id" {}
 variable "availability_zone" {}
