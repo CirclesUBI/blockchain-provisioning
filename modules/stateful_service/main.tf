@@ -301,6 +301,37 @@ resource "aws_iam_role_policy" "network_interface" {
 EOF
 }
 
+resource "aws_iam_role_policy" "ecs" {
+  name = "circles-${var.service_name}-ecs"
+  role = "${aws_iam_role.this.id}"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "ecs:DeregisterContainerInstance",
+          "ecs:DiscoverPollEndpoint",
+          "ecs:Poll",
+          "ecs:RegisterContainerInstance",
+          "ecs:StartTelemetrySession",
+          "ecs:Submit*",
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
 # ----------------------------------------------------------------------------------------------
 # Security Groups
 
