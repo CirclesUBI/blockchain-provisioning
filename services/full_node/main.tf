@@ -1,7 +1,7 @@
 variable "vpc_id" {}
 variable "subnet_id" {}
 variable "availability_zone" {}
-variable "ecs_cluster" {}
+variable "ecs_cluster_name" {}
 
 locals {
   service_name = "fullnode"
@@ -42,5 +42,5 @@ module "full_node_instance" {
   availability_zone = "${var.availability_zone}"
   ip_address        = "10.0.101.50"
 
-  ecs_cluster = "${var.ecs_cluster}"
+  ecs_cluster_name = "${var.ecs_cluster_name}"
 }

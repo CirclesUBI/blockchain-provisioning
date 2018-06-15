@@ -5,7 +5,7 @@
 
 variable "service_name" {}
 
-variable "ecs_cluster" {}
+variable "ecs_cluster_name" {}
 
 variable "vpc_id" {}
 variable "subnet_id" {}
@@ -67,6 +67,7 @@ data "template_file" "cloud_config" {
     attach_resources_py = "${file("${path.module}/attach_resources.py")}"
     eni_id              = "${aws_network_interface.this.id}"
     volume_id           = "${aws_ebs_volume.this.id}"
+    ecs_cluster_name    = "${var.ecs_cluster_name}"
   }
 }
 
