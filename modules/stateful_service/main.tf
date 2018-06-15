@@ -1,5 +1,4 @@
-// A stateful_service is an ASG, EBS, and ENI as described in:
-// https://techpunch.co.uk/development/how-to-perform-high-availability-deployments-of-stateful-applications-in-aws-zookeeper-edition
+// A stateful_service is a single ec2 with a dettachable EBS volume and network interface
 
 # ----------------------------------------------------------------------------------------------
 # inputs
@@ -27,85 +26,21 @@ variable "ingress_rules" {
 }
 
 # ----------------------------------------------------------------------------------------------
-# Auto Scaling Group
+# Instance
 
-# Define the ASG using cloudformation as UpdatePolicy is not available through terraform
-resource "aws_cloudformation_stack" "this" {
-  name = "circles-${var.service_name}-asg"
+resource "aws_instance" "this" {
+  ami           = "${data.aws_ami.ecs_optimized.id}"
+  instance_type = "${var.instance_type}"
 
-  template_body = <<EOF
-{
-  "Resources": {
-    "AutoScalingGroup": {
-      "Type": "AWS::AutoScaling::AutoScalingGroup",
-      "Properties": {
-        "LaunchConfigurationName": "${aws_launch_configuration.this.name}",
-
-        "MaxSize": "1",
-        "MinSize": "0",
-        "DesiredCapacity": "1",
-
-        "HealthCheckType": "EC2",
-
-        "LoadBalancerNames": [],
-        "VPCZoneIdentifier": ["${var.subnet_id}"],
-
-        "TerminationPolicies": ["OldestLaunchConfiguration", "OldestInstance"],
-
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": "circles-${var.service_name}",
-            "PropagateAtLaunch": "true"
-          },
-          {
-            "Key": "instance_eni_id",
-            "Value": "${aws_network_interface.this.id}",
-            "PropagateAtLaunch": "true"
-          },
-          {
-            "Key": "instance_volume",
-            "Value": "${aws_ebs_volume.this.id}",
-            "PropagateAtLaunch": "true"
-          }
-        ]
-      },
-      "UpdatePolicy": {
-        "AutoScalingRollingUpdate": {
-          "MinInstancesInService": "0",
-          "MaxBatchSize": "1",
-          "PauseTime": "PT0S",
-          "SuspendProcesses": [
-            "HealthCheck",
-            "ReplaceUnhealthy",
-            "AZRebalance",
-            "AlarmNotification",
-            "ScheduledActions"
-          ]
-        }
-      }
-    }
-  }
-}
-EOF
-}
-
-resource "aws_launch_configuration" "this" {
-  name_prefix = "circles-${var.service_name}-"
-
-  instance_type        = "${var.instance_type}"
-  image_id             = "${data.aws_ami.ecs_optimized.id}"
   iam_instance_profile = "${aws_iam_instance_profile.this.name}"
 
-  security_groups             = ["${aws_security_group.this.id}"]
-  associate_public_ip_address = "true"
+  subnet_id              = "${var.subnet_id}"
+  vpc_security_group_ids = ["${aws_security_group.this.id}"]
 
   user_data = "${data.template_file.cloud_config.rendered}"
 
-  key_name = "david"
-
-  lifecycle {
-    create_before_destroy = true
+  tags {
+    Name = "circles-${var.service_name}"
   }
 }
 
