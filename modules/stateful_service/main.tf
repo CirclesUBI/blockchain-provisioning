@@ -11,6 +11,10 @@ variable "vpc_id" {}
 
 variable "availability_zone" {}
 
+variable "instance_type" {
+  default = "t2.micro"
+}
+
 variable "ip_address" {
   description = "static and persistant ipv4 address. An ENI for this ip address will be created and attached"
 }
@@ -103,7 +107,7 @@ EOF
 resource "aws_launch_configuration" "this" {
   name_prefix = "circles-${var.service_name}-"
 
-  instance_type        = "t2.micro"
+  instance_type        = "${var.instance_type}"
   image_id             = "${data.aws_ami.ecs_optimized.id}"
   iam_instance_profile = "${aws_iam_instance_profile.this.name}"
 
