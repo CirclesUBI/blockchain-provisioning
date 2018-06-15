@@ -253,39 +253,50 @@ resource "aws_iam_role_policy_attachment" "user_provided" {
   policy_arn = "${var.iam_policy}"
 }
 
-resource "aws_iam_role_policy" "cloudwatch_logs" {
-  name = "circles-${var.service_name}-cloudwatch-logs"
+resource "aws_iam_role_policy" "logs" {
+  name = "circles-${var.service_name}-logs"
   role = "${aws_iam_role.this.id}"
 
   policy = <<EOF
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "logs:CreateLogGroup",
-                "logs:CreateLogStream",
-                "logs:PutLogEvents",
-                "logs:DescribeLogStreams"
-            ],
-            "Resource": [
-                "arn:aws:logs:*:*:*"
-            ]
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ec2:AttachNetworkInterface",
-                "ec2:AttachVolume",
-                "ec2:DescribeNetworkInterfaces",
-                "ec2:DescribeVolumes"
-            ],
-            "Resource": [
-                "*"
-            ]
-        }
-    ]
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+        "Effect": "Allow",
+        "Action": [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents",
+            "logs:DescribeLogStreams"
+        ],
+        "Resource": [
+            "arn:aws:logs:*:*:*"
+        ]
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "network_interface" {
+  name = "circles-${var.service_name}-network-interface"
+  role = "${aws_iam_role.this.id}"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:AttachNetworkInterface",
+        "ec2:AttachVolume",
+        "ec2:DescribeNetworkInterfaces",
+        "ec2:DescribeVolumes"
+      ],
+      "Resource": "*"
+    }
+  ]
 }
 EOF
 }
