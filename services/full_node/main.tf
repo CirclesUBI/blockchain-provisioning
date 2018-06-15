@@ -1,6 +1,7 @@
 variable "vpc_id" {}
 variable "subnet_id" {}
 variable "availability_zone" {}
+variable "ecs_cluster" {}
 
 locals {
   service_name = "fullnode"
