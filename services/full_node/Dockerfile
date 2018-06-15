@@ -12,9 +12,13 @@ RUN echo 'python3 /get_secret.py \
     --output /secrets/ws-secret' \
     >> /entrypoint.sh
 
-RUN echo 'geth \
-    --datadir /chain \
-    init /genesis.json' \
+RUN echo 'cp /static_nodes.json /chain/geth/static-nodes.json'\
+    >> /entrypoint.sh
+
+RUN echo 'echo "STATIC_NODES:"'\
+    >> /entrypoint.sh
+
+RUN echo 'cat /chain/geth/static-nodes.json'\
     >> /entrypoint.sh
 
 RUN echo 'geth \
@@ -22,7 +26,7 @@ RUN echo 'geth \
     --networkid "${network_id}" \
     --datadir "/chain" \
     --ethstats "${service_name}:$(cat /secrets/ws-secret)@${ethstats}" \
-    --bootnodes "${bootnode}"' \
+    --nodiscover' \
     >> /entrypoint.sh
 
 ENTRYPOINT sh /entrypoint.sh

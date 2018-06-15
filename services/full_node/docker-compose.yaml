@@ -4,7 +4,7 @@ services:
     build: .
     volumes:
       - /data:/chain
-      - ./genesis.json:/genesis.json:ro
+      - ./static_nodes.json:/static_nodes.json:ro
     ports:
       - ${port}:${port}
       - ${port}:${port}/udp

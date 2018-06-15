@@ -75,6 +75,10 @@ module "this" {
       filename = "get_secret.py"
       content  = "${base64encode("${file("${path.root}/resources/get_secret.py")}")}"
     },
+    {
+      filename = "static_nodes.json"
+      content  = "${base64encode("${file("${path.root}/resources/static_nodes.json")}")}"
+    },
   ]
 
   ingress_rules = [
