@@ -25,7 +25,7 @@ variable "ingress_rules" {
 }
 
 # ----------------------------------------------------------------------------------------------
-# ASG
+# Auto Scaling Group
 
 # Define the ASG using cloudformation as UpdatePolicy is not available through terraform
 resource "aws_cloudformation_stack" "this" {

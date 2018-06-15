@@ -33,10 +33,12 @@ EOF
 module "full_node_instance" {
   source = "../../modules/stateful_service"
 
-  service_name      = "${local.service_name}"
+  service_name = "${local.service_name}"
+
+  instance_type = "t2.medium"
+
   subnet_id         = "${var.subnet_id}"
   vpc_id            = "${var.vpc_id}"
   availability_zone = "${var.availability_zone}"
   ip_address        = "10.0.101.50"
-  instance_type     = "t2.medium"
 }
