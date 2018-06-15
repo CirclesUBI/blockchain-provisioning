@@ -45,6 +45,54 @@ resource "aws_instance" "this" {
 }
 
 # ----------------------------------------------------------------------------------------------
+# user data
+
+data "template_file" "awslogs_conf" {
+  template = "${file("${path.module}/awslogs.conf")}"
+
+  vars {
+    service_name = "${var.service_name}"
+    dmesg        = "/var/log/dmesg"
+    messages     = "/var/log/messages"
+    cloud_init   = "/var/log/cloud-init-output.log"
+    docker       = "/var/log/docker"
+  }
+}
+
+data "template_file" "cloud_config" {
+  template = "${file("${path.module}/cloud-config.yaml")}"
+
+  vars {
+    awslogs_conf        = "${data.template_file.awslogs_conf.rendered}"
+    attach_resources_py = "${file("${path.module}/attach_resources.py")}"
+    eni_id              = "${aws_network_interface.this.id}"
+    volume_id           = "${aws_ebs_volume.this.id}"
+  }
+}
+
+# ----------------------------------------------------------------------------------------------
+# AMI
+
+data "aws_ami" "ecs_optimized" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["amzn-ami-*-amazon-ecs-optimized"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "owner-alias"
+    values = ["amazon"]
+  }
+}
+
+# ----------------------------------------------------------------------------------------------
 # Storage
 
 resource "aws_ebs_volume" "this" {
@@ -72,54 +120,6 @@ resource "aws_network_interface" "this" {
 
   tags {
     Name = "circles-${var.service_name}"
-  }
-}
-
-# ----------------------------------------------------------------------------------------------
-# AMI
-
-data "aws_ami" "ecs_optimized" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["amzn-ami-*-amazon-ecs-optimized"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  filter {
-    name   = "owner-alias"
-    values = ["amazon"]
-  }
-}
-
-# ----------------------------------------------------------------------------------------------
-# user data
-
-data "template_file" "awslogs_conf" {
-  template = "${file("${path.module}/awslogs.conf")}"
-
-  vars {
-    service_name = "${var.service_name}"
-    dmesg        = "/var/log/dmesg"
-    messages     = "/var/log/messages"
-    cloud_init   = "/var/log/cloud-init-output.log"
-    docker       = "/var/log/docker"
-  }
-}
-
-data "template_file" "cloud_config" {
-  template = "${file("${path.module}/cloud-config.yaml")}"
-
-  vars {
-    awslogs_conf        = "${data.template_file.awslogs_conf.rendered}"
-    attach_resources_py = "${file("${path.module}/attach_resources.py")}"
-    eni_id              = "${aws_network_interface.this.id}"
-    volume_id           = "${aws_ebs_volume.this.id}"
   }
 }
 
