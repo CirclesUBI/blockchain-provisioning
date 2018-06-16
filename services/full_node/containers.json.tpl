@@ -17,7 +17,7 @@
       "options": {
         "awslogs-group": "${log_group}",
         "awslogs-region": "eu-central-1",
-        "awslogs-stream-prefix": "nginx"
+        "awslogs-stream-prefix": "${service_name}"
       }
     }
   }

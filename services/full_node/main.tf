@@ -25,11 +25,12 @@ data "aws_iam_policy_document" "this" {
 }
 
 data "template_file" "container_definitions" {
-  template = "${file("${path.module}/service.json.tpl")}"
+  template = "${file("${path.module}/containers.json.tpl")}"
 
   vars {
-    log_group = "${aws_cloudwatch_log_group.this.name}"
-    port      = "${local.port}"
+    log_group    = "${aws_cloudwatch_log_group.this.name}"
+    port         = "${local.port}"
+    service_name = "${local.service_name}"
   }
 }
 
