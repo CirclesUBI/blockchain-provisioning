@@ -148,83 +148,68 @@ resource "aws_iam_role" "this" {
   assume_role_policy = "${data.aws_iam_policy_document.instance_assume_role_policy.json}"
 }
 
-resource "aws_iam_role_policy" "logs" {
-  name = "circles-${var.service_name}-logs"
+resource "aws_iam_role_policy" "this" {
+  name = "circles-${var.service_name}"
   role = "${aws_iam_role.this.id}"
 
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-        "Effect": "Allow",
-        "Action": [
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents",
-            "logs:DescribeLogStreams"
-        ],
-        "Resource": [
-            "arn:aws:logs:*:*:*"
-        ]
-    }
-  ]
-}
-EOF
+  policy = "${data.aws_iam_policy_document.this.json}"
 }
 
-resource "aws_iam_role_policy" "network_interface" {
-  name = "circles-${var.service_name}-network-interface"
-  role = "${aws_iam_role.this.id}"
+data "aws_iam_policy_document" "this" {
+  # Attach Network Interface
+  statement {
+    actions = [
+      "ec2:AttachNetworkInterface",
+      "ec2:DescribeNetworkInterfaces",
+    ]
 
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ec2:AttachNetworkInterface",
-        "ec2:AttachVolume",
-        "ec2:DescribeNetworkInterfaces",
-        "ec2:DescribeVolumes"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
-EOF
-}
+    resources = ["*"]
+  }
 
-resource "aws_iam_role_policy" "ecs" {
-  name = "circles-${var.service_name}-ecs"
-  role = "${aws_iam_role.this.id}"
+  # Attach EBS volume
+  statement {
+    actions = [
+      "ec2:AttachVolume",
+      "ec2:DescribeVolumeAttribute",
+      "ec2:DescribeVolumeStatus",
+      "ec2:DescribeVolumes",
+    ]
 
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-      {
-        "Effect": "Allow",
-        "Action": [
-          "ecs:DeregisterContainerInstance",
-          "ecs:DiscoverPollEndpoint",
-          "ecs:Poll",
-          "ecs:RegisterContainerInstance",
-          "ecs:StartTelemetrySession",
-          "ecs:Submit*",
-          "ecr:GetAuthorizationToken",
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ],
-        "Resource": "*"
-    }
-  ]
-}
-EOF
+    resources = ["*"]
+  }
+
+  # Take snapshots
+  statement {
+    actions = [
+      "ec2:CreateSnapshot",
+      "ec2:DeleteSnapshot",
+      "ec2:DescribeSnapshotAttribute",
+      "ec2:DescribeSnapshots",
+      "ec2:DescribeTags",
+      "ec2:DescribeVolumeAttribute",
+      "ec2:DescribeVolumeStatus",
+      "ec2:DescribeVolumes",
+      "ec2:ModifySnapshotAttribute",
+      "ec2:ResetSnapshotAttribute",
+      "ec2:CreateTags",
+      "ec2:DeleteTags",
+      "ec2:DescribeTags",
+    ]
+
+    resources = ["*"]
+  }
+
+  # Write cloudwatch logs
+  statement {
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "logs:DescribeLogStreams",
+    ]
+
+    resources = ["arn:aws:logs:*:*:*"]
+  }
 }
 
 # ----------------------------------------------------------------------------------------------
