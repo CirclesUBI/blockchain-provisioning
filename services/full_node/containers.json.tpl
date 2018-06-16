@@ -12,6 +12,12 @@
         "protocol": "tcp"
       }
     ],
+    "mountPoints": [
+      {
+        "sourceVolume": "data",
+        "containerPath": "/data"
+      }
+    ],
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {

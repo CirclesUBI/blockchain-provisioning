@@ -40,6 +40,11 @@ resource "aws_ecs_task_definition" "this" {
     name      = "data"
     host_path = "/data"
   }
+
+  placement_constraints {
+    type       = "memberOf"
+    expression = "attribute:instanceId == ${aws_instance.this.id}"
+  }
 }
 
 resource "aws_ecs_service" "this" {
@@ -50,6 +55,11 @@ resource "aws_ecs_service" "this" {
 
   # iam_role        = "${aws_iam_role.service.arn}"
   # depends_on      = ["aws_iam_role_policy.service"]
+
+  placement_constraints {
+    type       = "memberOf"
+    expression = "attribute:instanceId == ${aws_instance.this.id}"
+  }
 }
 
 resource "aws_iam_role" "service" {
@@ -96,6 +106,14 @@ resource "aws_instance" "this" {
 # ----------------------------------------------------------------------------------------------
 # user data
 
+data "template_file" "ecs_config" {
+  template = "${file("${path.module}/ecs.config")}"
+
+  vars {
+    ecs_cluster_name = "${var.ecs_cluster_name}"
+  }
+}
+
 data "template_file" "awslogs_conf" {
   template = "${file("${path.module}/awslogs.conf")}"
 
@@ -116,10 +134,10 @@ data "template_file" "cloud_config" {
 
   vars {
     awslogs_conf        = "${data.template_file.awslogs_conf.rendered}"
+    ecs_config          = "${data.template_file.ecs_config.rendered}"
     attach_resources_py = "${file("${path.module}/attach_resources.py")}"
     eni_id              = "${aws_network_interface.this.id}"
     volume_id           = "${aws_ebs_volume.this.id}"
-    ecs_cluster_name    = "${var.ecs_cluster_name}"
     service_name        = "${var.service_name}"
   }
 }
