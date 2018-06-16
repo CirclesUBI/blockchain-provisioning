@@ -211,6 +211,24 @@ data "aws_iam_policy_document" "this" {
 
     resources = ["arn:aws:logs:*:*:*"]
   }
+
+  # Run ECS tasks
+  statement {
+    actions = [
+      "ecs:DeregisterContainerInstance",
+      "ecs:DiscoverPollEndpoint",
+      "ecs:Poll",
+      "ecs:RegisterContainerInstance",
+      "ecs:StartTelemetrySession",
+      "ecs:Submit*",
+      "ecr:GetAuthorizationToken",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
+    ]
+
+    resources = ["*"]
+  }
 }
 
 # ----------------------------------------------------------------------------------------------
