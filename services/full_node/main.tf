@@ -25,7 +25,7 @@ data "aws_iam_policy_document" "this" {
 }
 
 data "template_file" "container_definitions" {
-  template = "${file("${path.module}/containers.json.tpl")}"
+  template = "${file("${path.module}/containers.json")}"
 
   vars {
     log_group    = "${aws_cloudwatch_log_group.this.name}"
