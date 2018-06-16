@@ -5,6 +5,10 @@
     "memory": 256,
     "cpu": 256,
     "essential": true,
+    "environment": [
+      {"name": "ETHSTATS_IP", "value": "${ethstats_ip}"},
+      {"name": "SERVICE_NAME", "value": "${service_name}"}
+    ],
     "portMappings": [
       {
         "containerPort": ${port},
