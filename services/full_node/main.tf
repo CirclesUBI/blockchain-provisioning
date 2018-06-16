@@ -30,7 +30,7 @@ resource "aws_iam_policy" "ethstats_ws_secret" {
 EOF
 }
 
-module "full_node_instance" {
+module "instance" {
   source = "../../modules/stateful_service"
 
   service_name = "${local.service_name}"
