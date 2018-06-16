@@ -2,6 +2,7 @@ variable "vpc_id" {}
 variable "subnet_id" {}
 variable "availability_zone" {}
 variable "ecs_cluster_name" {}
+variable "ecs_cluster_id" {}
 
 locals {
   service_name = "fullnode"
@@ -13,21 +14,22 @@ resource "aws_cloudwatch_log_group" "this" {
   retention_in_days = "60"
 }
 
-resource "aws_iam_policy" "ethstats_ws_secret" {
-  name = "circles-${local.service_name}-ws-secret"
+data "aws_iam_policy_document" "this" {
+  statement {
+    actions = [
+      "secretsmanager:GetSecretValue",
+    ]
 
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-      {
-        "Effect": "Allow",
-        "Action": "secretsmanager:GetSecretValue",
-        "Resource": "arn:aws:secretsmanager:eu-central-1:183869895864:secret:circles-ws-secret-nhzYC3"
-      }
-  ]
+    resources = ["arn:aws:secretsmanager:eu-central-1:183869895864:secret:circles-ws-secret-nhzYC3"]
+  }
 }
-EOF
+
+data "template_file" "container_definitions" {
+  template = "${file("${path.module}/service.json")}"
+
+  vars {
+    log_group = "${aws_cloudwatch_log_group.this.name}"
+  }
 }
 
 module "instance" {
@@ -37,10 +39,14 @@ module "instance" {
 
   instance_type = "t2.medium"
 
+  container_definitions = "${data.template_file.container_definitions.rendered}"
+  iam_policy_json       = "${data.aws_iam_policy_document.this.json}"
+
   subnet_id         = "${var.subnet_id}"
   vpc_id            = "${var.vpc_id}"
   availability_zone = "${var.availability_zone}"
   ip_address        = "10.0.101.50"
 
   ecs_cluster_name = "${var.ecs_cluster_name}"
+  ecs_cluster_id   = "${var.ecs_cluster_id}"
 }

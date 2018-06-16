@@ -6,10 +6,14 @@
 variable "service_name" {}
 
 variable "ecs_cluster_name" {}
+variable "ecs_cluster_id" {}
 
 variable "vpc_id" {}
 variable "subnet_id" {}
 variable "availability_zone" {}
+
+variable "iam_policy_json" {}
+variable "container_definitions" {}
 
 variable "ip_address" {
   description = "static and persistant ipv4 address. An ENI for this ip address will be created and attached"
@@ -23,6 +27,51 @@ variable "ingress_rules" {
   type        = "list"
   default     = []
   description = "ingress rules to be added to the instance security group"
+}
+
+# ----------------------------------------------------------------------------------------------
+# ECS Service
+
+resource "aws_ecs_task_definition" "this" {
+  family                = "circles-${var.service_name}"
+  container_definitions = "${var.container_definitions}"
+
+  volume {
+    name      = "data"
+    host_path = "/data"
+  }
+}
+
+resource "aws_ecs_service" "this" {
+  name            = "circles-${var.service_name}"
+  cluster         = "${var.ecs_cluster_id}"
+  task_definition = "${aws_ecs_task_definition.this.arn}"
+  desired_count   = 1
+
+  # iam_role        = "${aws_iam_role.service.arn}"
+  # depends_on      = ["aws_iam_role_policy.service"]
+}
+
+resource "aws_iam_role" "service" {
+  name               = "circles-${var.service_name}-service"
+  assume_role_policy = "${data.aws_iam_policy_document.service_assume_role_policy.json}"
+}
+
+data "aws_iam_policy_document" "service_assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role_policy" "service" {
+  name   = "circles-${var.service_name}-service"
+  role   = "${aws_iam_role.service.id}"
+  policy = "${var.iam_policy_json}"
 }
 
 # ----------------------------------------------------------------------------------------------
@@ -56,6 +105,9 @@ data "template_file" "awslogs_conf" {
     messages     = "/var/log/messages"
     cloud_init   = "/var/log/cloud-init-output.log"
     docker       = "/var/log/docker"
+    ecs_agent    = "/var/log/ecs/ecs-agent.log"
+    ecs_init     = "/var/log/ecs/ecs-init.log"
+    ecs_audit    = "/var/log/ecs/audit.log"
   }
 }
 
@@ -126,10 +178,10 @@ resource "aws_network_interface" "this" {
 }
 
 # ----------------------------------------------------------------------------------------------
-# IAM
+# Host IAM
 
 resource "aws_iam_instance_profile" "this" {
-  name = "circles-${var.service_name}"
+  name = "circles-${var.service_name}-host"
   role = "${aws_iam_role.this.name}"
 }
 
@@ -145,12 +197,12 @@ data "aws_iam_policy_document" "instance_assume_role_policy" {
 }
 
 resource "aws_iam_role" "this" {
-  name               = "circles-${var.service_name}"
+  name               = "circles-${var.service_name}-host"
   assume_role_policy = "${data.aws_iam_policy_document.instance_assume_role_policy.json}"
 }
 
 resource "aws_iam_role_policy" "this" {
-  name = "circles-${var.service_name}"
+  name = "circles-${var.service_name}-host"
   role = "${aws_iam_role.this.id}"
 
   policy = "${data.aws_iam_policy_document.this.json}"
