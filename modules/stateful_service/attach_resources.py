@@ -18,7 +18,10 @@ def snapshot_volume(instance_id, volume_id, service_name):
         Description=f"{volume_id} - {instance_id}",
         VolumeId=volume_id,
         TagSpecifications=[
-            {"ResourceType": "snapshot", "Tags": [{"Name": f"circles-{service_name}"}]}
+            {
+                "ResourceType": "snapshot",
+                "Tags": [{"Key": "Name", "Value": f"circles-{service_name}"}],
+            }
         ],
     )
     assert snap["State"] != "error"
