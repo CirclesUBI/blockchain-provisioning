@@ -45,6 +45,8 @@ resource "aws_ecs_task_definition" "this" {
     type       = "memberOf"
     expression = "attribute:instanceId == ${aws_instance.this.id}"
   }
+
+  task_role_arn = "${aws_iam_role.service.arn}"
 }
 
 resource "aws_ecs_service" "this" {
@@ -52,9 +54,6 @@ resource "aws_ecs_service" "this" {
   cluster         = "${var.ecs_cluster_id}"
   task_definition = "${aws_ecs_task_definition.this.arn}"
   desired_count   = 1
-
-  # iam_role        = "${aws_iam_role.service.arn}"
-  # depends_on      = ["aws_iam_role_policy.service"]
 
   placement_constraints {
     type       = "memberOf"
