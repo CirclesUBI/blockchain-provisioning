@@ -11,11 +11,15 @@ import time
 boto3.setup_default_session(region_name="eu-central-1")
 
 
-def snapshot_volume(instance_id, volume_id):
+def snapshot_volume(instance_id, volume_id, service_name):
     ec2 = boto3.client("ec2")
     print(f"attach_resources: snapshotting {volume_id}")
     snap = ec2.create_snapshot(
-        Description=f"{volume_id}-{instance_id}", VolumeId=volume_id
+        Description=f"{volume_id} - {instance_id}",
+        VolumeId=volume_id,
+        TagSpecifications=[
+            {"ResourceType": "snapshot", "Tags": [{"Name": f"circles-{service_name}"}]}
+        ],
     )
     assert snap["State"] != "error"
 
@@ -47,8 +51,9 @@ if __name__ == "__main__":
     parser.add_argument("--interface_id", action="store", required=True)
     parser.add_argument("--instance_id", action="store", required=True)
     parser.add_argument("--volume_id", action="store", required=True)
+    parser.add_argument("--service_name", action="store", required=True)
     args = parser.parse_args()
 
-    snapshot_volume(args.instance_id, args.volume_id)
+    snapshot_volume(args.instance_id, args.volume_id, args.service_name)
     attach_volume(args.instance_id, args.volume_id)
     attach_interface(args.instance_id, args.interface_id)

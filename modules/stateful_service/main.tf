@@ -68,6 +68,7 @@ data "template_file" "cloud_config" {
     eni_id              = "${aws_network_interface.this.id}"
     volume_id           = "${aws_ebs_volume.this.id}"
     ecs_cluster_name    = "${var.ecs_cluster_name}"
+    service_name        = "${var.service_name}"
   }
 }
 

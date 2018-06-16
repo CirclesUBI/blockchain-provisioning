@@ -21,7 +21,7 @@ runcmd:
 
   # attach resources
   - python3 -m pip install pyasn1 boto3 retry
-  - python3 /attach_resources.py --instance_id="$(curl -s http://169.254.169.254/latest/meta-data/instance-id)" --interface_id=${eni_id} --volume_id=${volume_id}
+  - python3 /attach_resources.py --instance_id="$(curl -s http://169.254.169.254/latest/meta-data/instance-id)" --interface_id=${eni_id} --volume_id=${volume_id} --service_name=${service_name}
 
   # format EBS if required
   - blkid -L data; FILESYSTEM_EXISTS=$?; if [[ $FILESYSTEM_EXISTS -ne 0 ]]; then echo "FORMATTING EBS VOLUME" && mkfs -t ext4 -L data /dev/xvdb; fi
