@@ -3,6 +3,7 @@ variable "subnet_id" {}
 variable "availability_zone" {}
 variable "ecs_cluster_name" {}
 variable "ecs_cluster_id" {}
+variable "ecr_repository" {}
 
 locals {
   service_name = "fullnode"
@@ -40,6 +41,8 @@ module "instance" {
   service_name = "${local.service_name}"
 
   instance_type = "t2.medium"
+
+  dockerfile = "${file("${path.module}/Dockerfile")}"
 
   container_definitions = "${data.template_file.container_definitions.rendered}"
   iam_policy_json       = "${data.aws_iam_policy_document.this.json}"
