@@ -6,7 +6,7 @@ variable "ecs_cluster_id" {}
 
 locals {
   service_name = "fullnode"
-  port         = 8545
+  port         = 80
 }
 
 resource "aws_cloudwatch_log_group" "this" {
@@ -25,10 +25,11 @@ data "aws_iam_policy_document" "this" {
 }
 
 data "template_file" "container_definitions" {
-  template = "${file("${path.module}/service.json")}"
+  template = "${file("${path.module}/service.json.tpl")}"
 
   vars {
     log_group = "${aws_cloudwatch_log_group.this.name}"
+    port      = "${local.port}"
   }
 }
 
@@ -49,4 +50,13 @@ module "instance" {
 
   ecs_cluster_name = "${var.ecs_cluster_name}"
   ecs_cluster_id   = "${var.ecs_cluster_id}"
+
+  ingress_rules = [
+    {
+      from_port   = "${local.port}"
+      to_port     = "${local.port}"
+      protocol    = "TCP"
+      description = "web"
+    },
+  ]
 }
