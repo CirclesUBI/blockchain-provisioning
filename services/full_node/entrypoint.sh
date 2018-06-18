@@ -5,9 +5,9 @@ python3 /get_secret.py \
     --value "ws-secret" \
     --output /secrets/ws-secret
 
-rm -rf /data/**/*
-
-geth --datadir /data init /genesis.json
+if [ ! -d "/data/geth/chaindata" ]; then
+    geth --datadir /data init /genesis.json
+fi
 
 geth \
     --syncmode "full" \
