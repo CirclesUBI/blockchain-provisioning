@@ -7,6 +7,7 @@ variable "service_name" {}
 
 variable "ecs_cluster_name" {}
 variable "ecs_cluster_id" {}
+variable "ecr_repository_url" {}
 
 variable "vpc_id" {}
 variable "subnet_id" {}
@@ -14,6 +15,7 @@ variable "availability_zone" {}
 
 variable "iam_policy_json" {}
 variable "container_definitions" {}
+variable "dockerfile" {}
 
 variable "ip_address" {
   description = "static and persistant ipv4 address. An ENI for this ip address will be created and attached"
@@ -50,10 +52,12 @@ resource "aws_ecs_task_definition" "this" {
 }
 
 resource "aws_ecs_service" "this" {
-  name            = "circles-${var.service_name}"
-  cluster         = "${var.ecs_cluster_id}"
-  task_definition = "${aws_ecs_task_definition.this.arn}"
-  desired_count   = 1
+  name                               = "circles-${var.service_name}"
+  cluster                            = "${var.ecs_cluster_id}"
+  task_definition                    = "${aws_ecs_task_definition.this.arn}"
+  desired_count                      = 1
+  deployment_minimum_healthy_percent = 0
+  deployment_maximum_percent         = 100
 
   placement_constraints {
     type       = "memberOf"
@@ -72,7 +76,7 @@ data "aws_iam_policy_document" "service_assume_role_policy" {
 
     principals {
       type        = "Service"
-      identifiers = ["ecs.amazonaws.com"]
+      identifiers = ["ecs-tasks.amazonaws.com"]
     }
   }
 }
@@ -81,6 +85,17 @@ resource "aws_iam_role_policy" "service" {
   name   = "circles-${var.service_name}-service"
   role   = "${aws_iam_role.service.id}"
   policy = "${var.iam_policy_json}"
+}
+
+# ----------------------------------------------------------------------------------------------
+# Deployment Pipeline
+
+module "deployment_pipeline" {
+  source             = "../deploy_pipeline"
+  dockerfile         = "${var.dockerfile}"
+  ecs_service_name   = "${aws_ecs_service.this.name}"
+  ecs_cluster_name   = "${var.ecs_cluster_name}"
+  ecr_repository_url = "${var.ecr_repository_url}"
 }
 
 # ----------------------------------------------------------------------------------------------

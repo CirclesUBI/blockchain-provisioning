@@ -10,4 +10,3 @@ geth \
     --datadir "/chain" \
     --ethstats "${SERVICE_NAME}:$(cat /secrets/ws-secret)@${ETHSTATS}" \
     --nodiscover
-

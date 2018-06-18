@@ -31,10 +31,6 @@ resource "aws_ecs_cluster" "circles" {
   name = "circles"
 }
 
-resource "aws_ecr_repository" "circles" {
-  name = "circles"
-}
-
 module "full_node" {
   source            = "services/full_node"
   subnet_id         = "${local.public_subnet_id}"
@@ -42,7 +38,7 @@ module "full_node" {
   availability_zone = "${var.availability_zone}"
   ecs_cluster_name  = "${aws_ecs_cluster.circles.name}"
   ecs_cluster_id    = "${aws_ecs_cluster.circles.id}"
-  ecr_repository    = "${aws_ecr_repository.circles.registry_id}"
+  ethstats          = "${module.ethstats.public_ip}:${module.ethstats.port}"
 }
 
 module "ethstats" {

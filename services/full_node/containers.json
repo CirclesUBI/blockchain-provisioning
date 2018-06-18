@@ -1,12 +1,12 @@
 [
   {
     "name": "circles-${service_name}",
-    "image": "ethereum/client-go:release-1.8",
+    "image": "${ecr_repository_url}",
     "memory": 256,
     "cpu": 256,
     "essential": true,
     "environment": [
-      {"name": "ETHSTATS_IP", "value": "${ethstats_ip}"},
+      {"name": "ETHSTATS", "value": "${ethstats}"},
       {"name": "SERVICE_NAME", "value": "${service_name}"}
     ],
     "portMappings": [
