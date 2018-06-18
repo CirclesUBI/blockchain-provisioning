@@ -5,8 +5,12 @@ python3 /get_secret.py \
     --value "ws-secret" \
     --output /secrets/ws-secret
 
+rm -rf /data/**/*
+
+geth init --datatdir /data/ /genesis.json
+
 geth \
     --syncmode "full" \
-    --datadir "/chain" \
+    --datadir "/data" \
     --ethstats "${SERVICE_NAME}:$(cat /secrets/ws-secret)@${ETHSTATS}" \
     --nodiscover
