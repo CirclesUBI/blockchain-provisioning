@@ -7,7 +7,7 @@ python3 /get_secret.py \
 
 rm -rf /data/**/*
 
-geth --datatdir /data init /genesis.json
+geth --datadir /data init /genesis.json
 
 geth \
     --syncmode "full" \
