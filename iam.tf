@@ -189,7 +189,7 @@ EOF
 // Write Cloudwatch Logs
 
 resource "aws_iam_policy_attachment" "circles_logging" {
-  name       = "circles-logging"
+  name       = "circles-blockchain-logging"
   roles      = ["${aws_iam_role.sealer1.name}", "${aws_iam_role.sealer2.name}", "${aws_iam_role.bootnode.name}", "${aws_iam_role.ethstats.name}", "${aws_iam_role.rpc.name}"]
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
