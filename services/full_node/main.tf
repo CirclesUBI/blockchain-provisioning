@@ -14,15 +14,52 @@ locals {
 # Task Definition
 # ----------------------------------------------------------------------------------------------
 
+module "static" {
+  source       = "../../modules/static"
+  service_name = "${local.service_name}"
+}
+
+data "template_file" "entrypoint" {
+  vars {
+    genesis_url      = "${module.static.genesis_url}"
+    get_secret_url   = "${module.static.get_secret_url}"
+    static_nodes_url = "${module.static.static_nodes_url}"
+    service_name     = "${local.service_name}"
+    ethstats         = "${var.ethstats}"
+  }
+
+  template = <<EOF
+      apk add --no-cache python3 && pip3 install boto3
+      curl -K $${get_secret_url} -o /get_secret.py
+
+      python3 /get_secret.py \
+        --name "circles-ws-secret" \
+        --value "ws-secret" \
+        --output /secrets/ws-secret
+
+      if [ ! -d "/data/geth/chaindata" ]; then
+        curl -K $${genesis_url} -o /genesis.json
+        geth --datadir /data init /genesis.json
+      fi
+
+      curl -K $${static_nodes_url} -o /data/geth/static_nodes.json
+      geth \
+        --syncmode "full" \
+        --datadir "/data" \
+        --ethstats "$${service_name}:$(cat /secrets/ws-secret)@$${ethstats}" \
+        --nodiscover
+  EOF
+}
+
 data "template_file" "container_definitions" {
   template = "${file("${path.module}/containers.json")}"
 
   vars {
-    log_group          = "${aws_cloudwatch_log_group.this.name}"
-    port               = "${local.port}"
-    service_name       = "${local.service_name}"
-    ethstats           = "${var.ethstats}"
-    ecr_repository_url = "${aws_ecr_repository.this.repository_url}"
+    log_group    = "${aws_cloudwatch_log_group.this.name}"
+    port         = "${local.port}"
+    service_name = "${local.service_name}"
+    ethstats     = "${var.ethstats}"
+    entrypoint   = "${jsonencode("${data.template_file.entrypoint.rendered}")}"
   }
 }
 
@@ -45,10 +82,6 @@ resource "aws_cloudwatch_log_group" "this" {
   retention_in_days = "60"
 }
 
-resource "aws_ecr_repository" "this" {
-  name = "circles-${local.service_name}"
-}
-
 # ----------------------------------------------------------------------------------------------
 # Instance
 # ----------------------------------------------------------------------------------------------
@@ -69,15 +102,20 @@ module "instance" {
   availability_zone = "${var.availability_zone}"
   ip_address        = "10.0.101.50"
 
-  ecs_cluster_name   = "${var.ecs_cluster_name}"
-  ecs_cluster_id     = "${var.ecs_cluster_id}"
-  ecr_repository_url = "${aws_ecr_repository.this.repository_url}"
+  ecs_cluster_name = "${var.ecs_cluster_name}"
+  ecs_cluster_id   = "${var.ecs_cluster_id}"
 
   ingress_rules = [
     {
       from_port   = "${local.port}"
       to_port     = "${local.port}"
       protocol    = "TCP"
+      description = "web"
+    },
+    {
+      from_port   = "${local.port}"
+      to_port     = "${local.port}"
+      protocol    = "UDP"
       description = "web"
     },
   ]

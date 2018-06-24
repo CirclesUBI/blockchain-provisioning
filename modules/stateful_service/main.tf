@@ -7,7 +7,6 @@ variable "service_name" {}
 
 variable "ecs_cluster_name" {}
 variable "ecs_cluster_id" {}
-variable "ecr_repository_url" {}
 
 variable "vpc_id" {}
 variable "subnet_id" {}
@@ -90,13 +89,6 @@ resource "aws_iam_role_policy" "service" {
 # ----------------------------------------------------------------------------------------------
 # Deployment Pipeline
 
-module "deployment_pipeline" {
-  source             = "../deploy_pipeline"
-  dockerfile         = "${var.dockerfile}"
-  ecs_service_name   = "${aws_ecs_service.this.name}"
-  ecs_cluster_name   = "${var.ecs_cluster_name}"
-  ecr_repository_url = "${var.ecr_repository_url}"
-}
 
 # ----------------------------------------------------------------------------------------------
 # Instance
