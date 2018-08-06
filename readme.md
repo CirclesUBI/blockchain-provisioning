@@ -9,15 +9,19 @@ Running, but under heavy development. Not production ready. See [todo](#todo)
 ## Using the Cluster
 
 - Monitor the current status of the cluster with our ethstats instance at: [stats.circles.com](http://stats.circles-chain.com)
-- Connect metamask to the RPC node at: http://18.184.227.148:8545
-- Connect your own node to the cluster using the [`gensis.json`](resources/genesis.json) and the bootnode at [boot.circles-chain.com](http://boot.circles-chain.com)
+- Connect metamask to the RPC node at: http://35.158.153.37:8545
+
+## Connecting a node
+
+1.  Clone this repo
+1.  From the project root run: `NAME=<YOUR_NAME> docker-compose -f resources/fullnode.docker-compose.yaml up`
 
 ## Bringing Up the AWS environment
 
-1. Install [terraform](https://www.terraform.io/)
-1. Create an [aws credentials file](https://docs.aws.amazon.com/cli/latest/userguide/cli-config-files.html)
-1. `terraform init`
-1. `terraform apply`
+1.  Install [terraform](https://www.terraform.io/)
+1.  Create an [aws credentials file](https://docs.aws.amazon.com/cli/latest/userguide/cli-config-files.html)
+1.  `terraform init`
+1.  `terraform apply`
 
 ## Operating the Cluster
 

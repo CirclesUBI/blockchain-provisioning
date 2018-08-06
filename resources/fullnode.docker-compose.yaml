@@ -1,0 +1,12 @@
+version: '3'
+services:
+  geth:
+    build:
+      context: .
+      dockerfile: fullnode.dockerfile
+    environment:
+        NODE_NAME: "${NAME}-fullnode"
+    ports:
+     - "8545:8545"
+     - "30303:30303"
+     - "30303:30303/udp"
