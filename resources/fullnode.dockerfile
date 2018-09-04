@@ -8,10 +8,12 @@ RUN echo '["enode://2911761ebcfd615fff958ae989532e2b0aad29d0f2c6150a4b06d4a2e983
 
 ENTRYPOINT ntpd /etc/ntpd.conf && /usr/local/bin/geth \
     --datadir /data \
-    --syncmode "full" \
+    --syncmode "light" \
     --ethstats "${NODE_NAME}:76bGpbD3HxxE3vxz@$(dig +short stats.circles-chain.com | tr -d '[:space:]'):80" \
     --nodiscover \
     --rpc \
+    --rpcaddr "0.0.0.0" \
     --rpcapi admin,debug,miner,personal,txpool,eth,shh,web3 \
     --networkid 46781 \
     --nat extip:35.158.153.37 \
+    --verbosity 9
