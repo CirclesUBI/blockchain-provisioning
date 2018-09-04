@@ -19,7 +19,8 @@ Running, but under heavy development. Not production ready. See [todo](#todo)
 ## Bringing Up the AWS environment
 
 1.  Install [terraform](https://www.terraform.io/)
-1.  Create an [aws credentials file](https://docs.aws.amazon.com/cli/latest/userguide/cli-config-files.html)
+1.  Run `aws configure --profile circles-blockchain-provisioning`
+1.  Enter the access-key and secret, and set the default region as `eu-central-1`. The output format can be None.
 1.  `terraform init`
 1.  `terraform apply`
 
