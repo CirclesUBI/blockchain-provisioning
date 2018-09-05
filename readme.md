@@ -11,10 +11,12 @@ Running, but under heavy development. Not production ready. See [todo](#todo)
 - Monitor the current status of the cluster with our ethstats instance at: [stats.circles.com](http://stats.circles-chain.com)
 - Connect metamask to the RPC node at: http://35.158.153.37:8545
 
-## Connecting a node
+## Running a Local Node
 
-1.  Clone this repo
-1.  From the project root run: `NAME=<YOUR_NAME> docker-compose -f resources/fullnode.docker-compose.yaml up`
+Run one of these from the project root
+
+- Full node: `NAME=<NODE_NAME> ./nodes/full.sh`
+- Light client: `NAME=<NODE_NAME> ./nodes/light.sh`
 
 ## Bringing Up the AWS environment
 
