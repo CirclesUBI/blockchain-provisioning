@@ -1,6 +1,6 @@
 #! /bin/sh
 
-SYNCMODE=$1
+SYNC_MODE=$1
 NODE_NAME=$2
 
 # GENESIS BLOCK
@@ -8,7 +8,7 @@ curl -o /genesis.json https://raw.githubusercontent.com/CirclesUBI/blockchain-pr
 geth init --datadir /data /genesis.json
 
 # STATIC NETWORKING
-echo '["enode://56547161104f44313b49447661bb595e30e663d98abec141cdab93b36dcd076bb449e78ceee3d8e5925cc63bb181b37560f360ebc2e58e0addb4d5dc06de9734@[35.158.153.37]:30303"]' > /data/geth/static-nodes.json
+echo '["enode://97ea1f0b1eada629dac3b24bcda9f61106f6b633fd1a6ed9180389219bdc4a9ad30933e85f8bf59e12893ea9dfd243a97de02445222941379cbe9eb0a0d31a52@[35.158.153.37]:30303"]' > /data/geth/static-nodes.json
 
 # SYNC CLOCKS
 ntpd /etc/ntpd.conf 
@@ -16,7 +16,7 @@ ntpd /etc/ntpd.conf
 # START NODE
 /usr/local/bin/geth \
     --datadir /data \
-    --syncmode "${SYNCMODE}" \
+    --syncmode "${SYNC_MODE}" \
     --ethstats "${NODE_NAME}:76bGpbD3HxxE3vxz@$(dig +short stats.circles-chain.com | tr -d '[:space:]'):80" \
     --nodiscover \
     --rpc \

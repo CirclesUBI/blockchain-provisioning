@@ -8,15 +8,15 @@ Running, but under heavy development. Not production ready. See [todo](#todo)
 
 ## Using the Cluster
 
-- Monitor the current status of the cluster with our ethstats instance at: [stats.circles.com](http://stats.circles-chain.com)
+- Monitor the current status of the cluster with our ethstats instance at: [stats.circles-chain.com](http://stats.circles-chain.com)
 - Connect metamask to the RPC node at: http://35.158.153.37:8545
 
 ## Running a Local Node
 
-Run one of these from the project root
+Run one of these from the project root. `NODE_NAME` is the name that will be shown at stats.circles-chain.com
 
-- Full node: `NAME=<NODE_NAME> ./nodes/full.sh`
-- Light client: `NAME=<NODE_NAME> ./nodes/light.sh`
+- Full node: `./nodes/full <NODE_NAME>`
+- Light client: `./nodes/light <NODE_NAME>`
 
 ## Bringing Up the AWS environment
 
