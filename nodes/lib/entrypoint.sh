@@ -21,6 +21,7 @@ ntpd /etc/ntpd.conf
     --nodiscover \
     --rpc \
     --rpcaddr "0.0.0.0" \
-    --rpcapi admin,debug,miner,personal,txpool,eth,shh,web3 \
+    --rpccorsdomain="*" \
+    --rpcapi admin,debug,miner,personal,txpool,eth,net,shh,web3 \
     --networkid 46781 \
     --nat extip:35.158.153.37
