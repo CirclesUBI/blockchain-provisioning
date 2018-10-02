@@ -6,7 +6,7 @@ resource "aws_efs_file_system" "circles" {
   performance_mode = "maxIO"
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 
   tags {

@@ -1,10 +1,10 @@
+# DEPRECATED
+
+The circles pilot will be run on Kovan instead of a private testnet. This repo exists only for reference / archival purposes and does not describe a live system anywhere.
+
 # Blockchain Provisioning
 
 This repository contains [terraform](https://www.terraform.io/) scripts defining an AWS environment containing a private Ethereum blockchain
-
-## Status
-
-Running, but under heavy development. Not production ready. See [todo](#todo)
 
 ## Using the Cluster
 
